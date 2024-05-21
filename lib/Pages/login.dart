@@ -1,8 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:recipe_food/CommenWidget/app_text.dart';
 import 'package:recipe_food/CommenWidget/custom_button.dart';
+import 'package:recipe_food/Pages/auth_service.dart';
 import '../AppAssets/app_assets.dart';
 import '../CommenWidget/custom_text_form_field.dart';
 import '../CommenWidget/icon_button.dart';
@@ -17,6 +20,17 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _auth = AuthService();
+  final _email = TextEditingController();
+  final _password = TextEditingController();
+
+  @override
+  void dispose() {
+    super.dispose();
+    _email.dispose();
+    _password.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
@@ -45,6 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 SizedBox(height: size.height * 0.04),
                 CustomTextFormField(
+                  controller: _email,
                   label: 'Email',
                   hintText: 'Enter your Email',
                 ),
@@ -52,6 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 CustomTextFormField(
                   label: 'Password',
                   hintText: 'Enter your Password',
+                  controller: _password,
                 ),
                 SizedBox(height: size.height * 0.04),
                 AppText(
@@ -62,9 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 SizedBox(height: size.height * 0.04),
                 CustomButton(
-                  onTap: () {
-                    Get.toNamed(RouteName.bottomNavigationBar);
-                  },
+                  onTap: _login,
                   icon: Icons.arrow_forward,
                   label: 'Signin',
                   height: 55,
@@ -137,6 +151,48 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  void goToHome(BuildContext context) {
+    Get.toNamed(RouteName.bottomNavigationBar);
+  }
+
+  _login() async {
+    if (_email.text.isEmpty || _password.text.isEmpty) {
+      _showErrorDialog('Please fill in both email and password');
+      return;
+    }
+
+    try {
+      final user = await _auth.loginUserWithEmailAndPassword(
+          _email.text, _password.text);
+      if (user != null) {
+        log("User Logged In");
+        goToHome(context);
+      } else {
+        _showErrorDialog('Invalid email or password');
+      }
+    } catch (e) {
+      _showErrorDialog('An error occurred. Please try again later.');
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Error'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            child: Text('Okay'),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+          )
+        ],
       ),
     );
   }

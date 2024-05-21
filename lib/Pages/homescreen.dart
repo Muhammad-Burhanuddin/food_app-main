@@ -19,7 +19,14 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<String> dishType = ["All", "Indian", "Italian", 'chines', 'Asian'];
+  final List<String> dishType = [
+    "All",
+    "Breakfast",
+    "Lunch",
+    'Dinner',
+    "Snacks",
+    "Desserts"
+  ];
   final HomeScreenController controller = Get.put(HomeScreenController());
   final TextEditingController _searchController = TextEditingController();
   bool _isSearchFocused = false;
@@ -170,7 +177,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ],
                               ),
                             ),
-
                             ListView.builder(
                                 shrinkWrap: true,
                                 itemCount: 2,
@@ -210,7 +216,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         padding: const EdgeInsets.all(2),
                                         width: isTabletScreen
                                             ? MediaQuery.of(context).size.width
-                                            : 50,
+                                            : 60,
                                         decoration: BoxDecoration(
                                           color: controller.selectedIndex ==
                                                   dishType.indexOf(type)
@@ -252,24 +258,26 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                 ),
-                _isSearchFocused? Center(): Expanded(
-                  child: Obx(() {
-                    switch (controller.selectedIndex) {
-                      case 0:
-                        return AllTab();
-                      case 1:
-                        return const IndianTab();
-                      case 2:
-                        return const ItalianTab();
-                      case 3:
-                        return const chinesTab();
-                      case 4:
-                        return const AsianTab();
-                      default:
-                        return const SizedBox.shrink();
-                    }
-                  }),
-                ),
+                _isSearchFocused
+                    ? Center()
+                    : Expanded(
+                        child: Obx(() {
+                          switch (controller.selectedIndex) {
+                            case 0:
+                              return AllTab();
+                            case 1:
+                              return const IndianTab();
+                            case 2:
+                              return const ItalianTab();
+                            case 3:
+                              return const chinesTab();
+                            case 4:
+                              return const AsianTab();
+                            default:
+                              return const SizedBox.shrink();
+                          }
+                        }),
+                      ),
               ],
             ),
           ),
