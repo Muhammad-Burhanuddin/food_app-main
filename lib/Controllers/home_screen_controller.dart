@@ -1,8 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:recipe_food/CommenWidget/app_text.dart';
 import 'package:recipe_food/CommenWidget/custom_button.dart';
-
 import '../Helpers/colors.dart';
 
 class HomeScreenController extends GetxController {
@@ -14,46 +14,38 @@ class HomeScreenController extends GetxController {
     _selectedIndex.value = index;
   }
 
-  // filter code
-  List<RxBool> selectedTimes =
-      List.generate(4, (index) => index == 0 ? true.obs : false.obs);
+  // Selected ingredients list
+  RxList<RxBool> selectedIngredients = <RxBool>[].obs;
 
-  void selectedTime(int index) {
-    for (int i = 0; i < selectedTimes.length; i++) {
-      if (i == index) {
-        selectedTimes[i].value = true;
-      } else {
-        selectedTimes[i].value = false;
-      }
+  // Observable list for ingredients fetched from Firestore
+  final RxList<String> ingredients = <String>[].obs;
+
+  // Firestore collection reference
+  final CollectionReference _collectionRef =
+      FirebaseFirestore.instance.collection('ingredients');
+
+  // Fetch data from Firestore
+  Future<void> getIngredients() async {
+    try {
+      QuerySnapshot querySnapshot = await _collectionRef.get();
+      final allData = querySnapshot.docs
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .toList();
+
+      // Assuming your ingredients data has a 'name' field
+      ingredients.value =
+          allData.map((ingredient) => ingredient['name'] as String).toList();
+
+      // Initialize selectedIngredients list with the same length as ingredients
+      selectedIngredients.value =
+          List.generate(ingredients.length, (index) => false.obs);
+    } catch (e) {
+      print("Error getting ingredients: $e");
     }
-    update();
   }
 
-  List<RxBool> selectedRates =
-      List.generate(5, (index) => index == 0 ? true.obs : false.obs);
-
-  void selectedRate(int index) {
-    for (int i = 0; i < selectedRates.length; i++) {
-      if (i == index) {
-        selectedRates[i].value = true;
-      } else {
-        selectedRates[i].value = false;
-      }
-    }
-    update();
-  }
-
-  List<RxBool> selectedCategories =
-      List.generate(10, (index) => index == 0 ? true.obs : false.obs);
-
-  void selectedCategory(int index) {
-    for (int i = 0; i < selectedCategories.length; i++) {
-      if (i == index) {
-        selectedCategories[i].value = true;
-      } else {
-        selectedCategories[i].value = false;
-      }
-    }
+  void toggleSelection(int index) {
+    selectedIngredients[index].value = !selectedIngredients[index].value;
     update();
   }
 
@@ -79,135 +71,44 @@ class HomeScreenController extends GetxController {
                     fontWeight: FontWeight.w600,
                     textColor: Colors.black,
                   )),
-                  SizedBox(height: 10,),
+                  SizedBox(height: 10),
                   AppText(
                     textAlign: TextAlign.left,
-                    text: 'Time',
+                    text: 'Ingredients',
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     textColor: Colors.black,
                   ),
-                  SizedBox(height: 5,),
-                  Obx(() => Wrap(
-                        spacing: 10,
-                        runSpacing: 10,
-                        children: List.generate(
-                          selectedTimes.length,
-                          (index) => CustomButton(
-                            backgroundColor: selectedTimes[index].value
-                                ? AppColors.primaryColor
-                                : Colors.transparent,
-                            textColor: selectedTimes[index].value
-                                ? Colors.white
-                                : AppColors.primaryColor,
-                            borderWidth: 1,
-                            onTap: () {
-                              selectedTime(index);
-                            },
-                            fontSize: 11,
-                            label: index == 0
-                                ? "All"
-                                : [
-                                    "Newest",
-                                    "Oldest",
-                                    "Popularity",
-                                  ][index - 1],
-                            height: 34,
-                            width: 65,
-                            borderColor: selectedTimes[index].value
-                                ? Colors.transparent
-                                : AppColors.primaryColor,
-                          ),
+                  SizedBox(height: 5),
+                  Obx(() {
+                    return Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: List.generate(
+                        ingredients.length,
+                        (index) => CustomButton(
+                          backgroundColor: selectedIngredients[index].value
+                              ? AppColors.primaryColor
+                              : Colors.transparent,
+                          textColor: selectedIngredients[index].value
+                              ? Colors.white
+                              : AppColors.primaryColor,
+                          borderWidth: 1,
+                          onTap: () {
+                            toggleSelection(index);
+                          },
+                          fontSize: 11,
+                          label: index == 0 ? "All" : ingredients[index],
+                          height: 34,
+                          width: 65,
+                          borderColor: selectedIngredients[index].value
+                              ? Colors.transparent
+                              : AppColors.primaryColor,
                         ),
-                      )),
-                  SizedBox(height: 10,),
-                  AppText(
-                    text: 'Rate',
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    textColor: Colors.black,
-                  ),
-                  SizedBox(height: 5,),
-                  Obx(() => Wrap(
-                        spacing: 10,
-                        runSpacing: 10,
-                        children: List.generate(
-                          selectedRates.length,
-                          (index) => CustomButton(
-                            backgroundColor: selectedRates[index].value
-                                ? AppColors.primaryColor
-                                : Colors.transparent,
-                            textColor: selectedRates[index].value
-                                ? Colors.white
-                                : AppColors.primaryColor,
-                            onTap: () {
-                              selectedRate(index);
-                            },
-                            fontSize: 14,
-                            label: index == 0
-                                ? "5"
-                                : ["4", "3", "2", "1"][index - 1],
-                            spacing: 5,
-                            icon: Icons.star,
-                            iconSize: 15,
-                            iconColor: selectedRates[index].value
-                                ? Colors.white
-                                : AppColors.primaryColor,
-                            height: 34,
-                            width: 65,
-                            borderColor: selectedRates[index].value
-                                ? Colors.transparent
-                                : AppColors.primaryColor,
-                            borderWidth: 1,
-                          ),
-                        ),
-                      )),
-                  SizedBox(height: 10,),
-                  AppText(
-                    text: 'Category',
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    textColor: Colors.black,
-                  ),
-                  SizedBox(height: 5,),
-                  Obx(() => Wrap(
-                        spacing: 10,
-                        runSpacing: 10,
-                        children: List.generate(
-                          selectedCategories.length,
-                          (index) => CustomButton(
-                            backgroundColor: selectedCategories[index].value
-                                ? AppColors.primaryColor
-                                : Colors.transparent,
-                            textColor: selectedCategories[index].value
-                                ? Colors.white
-                                : AppColors.primaryColor,
-                            onTap: () {
-                              selectedCategory(index);
-                            },
-                            fontSize: 10,
-                            borderWidth: 1,
-                            label: index == 0
-                                ? "All"
-                                : [
-                                    "Cereal",
-                                    "Vegetables",
-                                    "Dinner",
-                                    "Chinese",
-                                    "Local Dish",
-                                    "Fruit",
-                                    "BreakFast",
-                                    "Spanish",
-                                    "Lunch",
-                                  ][index - 1],
-                            height: 34,
-                            width: 65,
-                            borderColor: selectedCategories[index].value
-                                ? Colors.transparent
-                                : AppColors.primaryColor,
-                          ),
-                        ),
-                      )),
+                      ),
+                    );
+                  }),
+                  SizedBox(height: 10),
                   Spacer(),
                   Center(
                       child: CustomButton(
@@ -215,13 +116,17 @@ class HomeScreenController extends GetxController {
                     height: 37,
                     width: 174,
                   )),
-                  SizedBox(
-                    height: 20,
-                  ),
+                  SizedBox(height: 20),
                 ],
               ),
             ));
       },
     );
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    getIngredients();
   }
 }

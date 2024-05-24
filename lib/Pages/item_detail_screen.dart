@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -5,16 +6,15 @@ import 'package:get/get.dart';
 import 'package:recipe_food/AppAssets/app_assets.dart';
 import 'package:recipe_food/CommenWidget/app_text.dart';
 import 'package:recipe_food/CommenWidget/custom_button.dart';
-import 'package:recipe_food/DetailScreenTabContent/Ingrident_tab.dart';
 import 'package:recipe_food/DetailScreenTabContent/procedure_tab.dart';
+import 'package:recipe_food/model/recepiemodel.dart';
 import 'package:recipe_food/routes/route_name.dart';
-
-import '../CommenWidget/saved_container.dart';
 import '../Controllers/item_detail_screen_controller.dart';
 import '../Helpers/colors.dart';
 
 class ItemDetailScreen extends StatefulWidget {
-  const ItemDetailScreen({super.key});
+  final Recipe recipe;
+  const ItemDetailScreen({super.key, required this.recipe});
 
   @override
   State<ItemDetailScreen> createState() => _ItemDetailScreenState();
@@ -23,6 +23,10 @@ class ItemDetailScreen extends StatefulWidget {
 class _ItemDetailScreenState extends State<ItemDetailScreen> {
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final containerWidth = screenWidth * 1; // 80% of screen width
+    final containerHeight = screenHeight * 0.2; // 20% of screen height
     final ItemDetailScreenController controller =
         Get.put(ItemDetailScreenController());
     List<String> DetailType = ["Ingrident", "Procedure"];
@@ -50,7 +54,103 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
               children: [
-                SavedContainer(),
+                Container(
+                  margin: EdgeInsets.symmetric(vertical: 5),
+                  width: containerWidth,
+                  height: containerHeight,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade600,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Opacity(
+                          opacity: 0.8,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: CachedNetworkImage(
+                              fit: BoxFit.cover,
+                              imageUrl: '${widget.recipe.image}',
+                              errorWidget: (context, url, error) =>
+                                  Icon(Icons.error),
+                            ),
+                          )),
+                      Positioned(
+                        top: containerHeight * 0.07,
+                        left: containerWidth * 0.03,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(3),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: AppColors.lightOrangeColor,
+                              ),
+                              height: 23,
+                              width: 45,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  SvgPicture.asset(AppAssets.starIcon),
+                                  SizedBox(
+                                    width: 3,
+                                  ),
+                                  AppText(
+                                    text: '4.5',
+                                    fontWeight: FontWeight.w200,
+                                    fontSize: 11,
+                                    textColor: Colors.black,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: containerHeight * 0.35),
+                            AppText(
+                              text: 'Traditional spare \nribs baked',
+                              fontSize: 14,
+                            ),
+                            Row(
+                              children: [
+                                AppText(
+                                  text: 'By Chef John',
+                                  fontSize: 8,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                                SizedBox(width: containerWidth * 0.44),
+                                SvgPicture.asset(
+                                  AppAssets.timerIcon,
+                                  color: Colors.white,
+                                ),
+                                SizedBox(width: containerWidth * 0.02),
+                                AppText(
+                                  text:
+                                      '${widget.recipe.time ?? 'Recipe time'}',
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                                SizedBox(width: containerWidth * 0.02),
+                                Container(
+                                    width: 20,
+                                    height: 20,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(13),
+                                      color: Colors.white,
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(2.0),
+                                      child: SvgPicture.asset(
+                                          AppAssets.bookMarkIcon),
+                                    )),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 SizedBox(
                   height: 10,
                 ),
@@ -59,7 +159,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     AppText(
-                      text: 'Spicy chicken burger with\nFrench fries',
+                      text: '${widget.recipe.name ?? 'Recipe name'}',
                       textColor: Colors.black,
                       fontSize: 16,
                     ),
@@ -196,7 +296,68 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                   child: Obx(() {
                     switch (controller.selectedIndex) {
                       case 0:
-                        return IngridientTab();
+                        return Column(
+                          children: [
+                            Row(
+                              children: [
+                                SvgPicture.asset(AppAssets.serveIcon),
+                                SizedBox(width: 5),
+                                AppText(
+                                  text: '1 serve',
+                                  fontSize: 11,
+                                  textColor: AppColors.greyColor,
+                                ),
+                                Spacer(),
+                                AppText(
+                                  text:
+                                      '${widget.recipe.ingredients?.length ?? 0} Items',
+                                  fontSize: 11,
+                                  textColor: AppColors.greyColor,
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 20),
+                            Expanded(
+                              child: ListView.builder(
+                                itemCount:
+                                    widget.recipe.ingredients?.length ?? 0,
+                                scrollDirection: Axis.vertical,
+                                shrinkWrap: true,
+                                itemBuilder: (BuildContext context, int index) {
+                                  final ingredient =
+                                      widget.recipe.ingredients?[index];
+                                  return Container(
+                                    padding: EdgeInsets.all(10),
+                                    margin: EdgeInsets.only(bottom: 10),
+                                    width: 315,
+                                    height: 76,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade200,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Image.asset(AppAssets.tomato),
+                                        SizedBox(width: 10),
+                                        AppText(
+                                          text: ingredient ?? '',
+                                          fontSize: 16,
+                                          textColor: Colors.black,
+                                        ),
+                                        Spacer(),
+                                        AppText(
+                                          text: '500g',
+                                          fontSize: 14,
+                                          textColor: AppColors.greyColor,
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        );
                       case 1:
                         return const ProcedureTab();
                       default:
@@ -372,7 +533,8 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             RatingBar.builder(
-              unratedColor: Colors.amber, // Set the unratedColor to amber for the border color
+              unratedColor: Colors
+                  .amber, // Set the unratedColor to amber for the border color
               initialRating: _rating,
               minRating: 1,
               direction: Axis.horizontal,
@@ -381,10 +543,10 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
               itemSize: 30,
               itemBuilder: (context, index) {
                 return Icon(
-                  index < _rating.floor()
-                      ? Icons.star
-                      : Icons.star_border,
-                  color: index < _rating.floor() ? Colors.amber : Colors.amber, // Set color to amber for selected icons
+                  index < _rating.floor() ? Icons.star : Icons.star_border,
+                  color: index < _rating.floor()
+                      ? Colors.amber
+                      : Colors.amber, // Set color to amber for selected icons
                 );
               },
               onRatingUpdate: (rating) {
@@ -393,7 +555,6 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                 });
               },
             ),
-
             SizedBox(height: 20),
             CustomButton(
               onTap: () {

@@ -6,7 +6,7 @@ import 'package:recipe_food/CommenWidget/app_text.dart';
 import 'package:recipe_food/Helpers/colors.dart';
 
 class RecipiesContainer extends StatefulWidget {
-  const RecipiesContainer({super.key});
+  const RecipiesContainer({super.key, required String recipeName});
 
   @override
   State<RecipiesContainer> createState() => _RecipiesContainerState();
@@ -37,7 +37,12 @@ class _RecipiesContainerState extends State<RecipiesContainer> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              AppText(textAlign: TextAlign.center,text: 'Steak with tomato..',fontSize: 14,textColor: Colors.black,),
+              AppText(
+                textAlign: TextAlign.center,
+                text: 'Steak with tomato..',
+                fontSize: 14,
+                textColor: Colors.black,
+              ),
               RatingBar.builder(
                 initialRating: _rating,
                 minRating: 1,
@@ -66,11 +71,27 @@ class _RecipiesContainerState extends State<RecipiesContainer> {
                       child: Image.asset(AppAssets.personImage),
                     ),
                   ),
-                  SizedBox(width: 5,),
-                  AppText(text: 'By James Milner',textColor: AppColors.blackColor,fontSize: 11,fontWeight: FontWeight.w400,),
-                  SizedBox(width: 50,),
-                  AppText(text: '20 mins',textColor: AppColors.blackColor,fontSize: 11,fontWeight: FontWeight.w400,),
-                  SizedBox(width: 5,),
+                  SizedBox(
+                    width: 5,
+                  ),
+                  AppText(
+                    text: 'By James Milner',
+                    textColor: AppColors.blackColor,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  SizedBox(
+                    width: 50,
+                  ),
+                  AppText(
+                    text: '20 mins',
+                    textColor: AppColors.blackColor,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  SizedBox(
+                    width: 5,
+                  ),
                   SvgPicture.asset(AppAssets.timerIcon),
                 ],
               ),

@@ -31,10 +31,10 @@ class AppRoutes {
           name: RouteName.bottomNavigationBar,
           page: () => const BottomNavigationBar(),
         ),
-        GetPage(
-          name: RouteName.itemDetailScreen,
-          page: () => const ItemDetailScreen(),
-        ),
+        // GetPage(
+        //   name: RouteName.itemDetailScreen,
+        //   page: () => const ItemDetailScreen(),
+        // ),
         GetPage(
           name: RouteName.reviewsScreen,
           page: () => const ReviewsScreen(),

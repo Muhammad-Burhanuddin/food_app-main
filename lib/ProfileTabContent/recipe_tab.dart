@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../CommenWidget/saved_container.dart';
 
-
-
-
 class RecipeTab extends StatefulWidget {
   const RecipeTab({super.key});
 
@@ -16,11 +13,10 @@ class _RecipeTabState extends State<RecipeTab> {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      shrinkWrap: true,
+        shrinkWrap: true,
         itemCount: 7,
-        itemBuilder: (index,context){
-      return SavedContainer();
-    });
-
+        itemBuilder: (index, context) {
+          return SavedContainer();
+        });
   }
 }
