@@ -1,7 +1,9 @@
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:recipe_food/Pages/profile_screen.dart';
 import 'package:recipe_food/Pages/saved_screen.dart';
+import '../Controllers/home_screen_controller.dart';
 import '../Helpers/colors.dart';
 import 'homescreen.dart';
 import 'notifications_screen.dart';
@@ -14,6 +16,8 @@ class BottomNavigationBar extends StatefulWidget {
 }
 
 class _BottomNavigationBarState extends State<BottomNavigationBar> {
+  final HomeScreenController controller = Get.put(HomeScreenController());
+
   int _bottomNavIndex = 0;
 
   final List<Widget> _screens = [
@@ -38,10 +42,11 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
           highlightElevation: 0.0,
           splashColor: Colors.transparent,
           onPressed: () {
-            // Add your action for the floating action button
+            controller.showForgetPasswordBottomSheet(context);
           },
           child: Icon(Icons.add, color: Colors.white),
-          backgroundColor: Colors.transparent, // Make the background color transparent
+          backgroundColor:
+              Colors.transparent, // Make the background color transparent
           elevation: 0, // Remove shadow
         ),
       ),
@@ -65,4 +70,3 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
     );
   }
 }
-

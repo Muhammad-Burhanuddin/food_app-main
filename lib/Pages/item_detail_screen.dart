@@ -6,7 +6,6 @@ import 'package:get/get.dart';
 import 'package:recipe_food/AppAssets/app_assets.dart';
 import 'package:recipe_food/CommenWidget/app_text.dart';
 import 'package:recipe_food/CommenWidget/custom_button.dart';
-import 'package:recipe_food/DetailScreenTabContent/procedure_tab.dart';
 import 'package:recipe_food/model/recepiemodel.dart';
 import 'package:recipe_food/routes/route_name.dart';
 import '../Controllers/item_detail_screen_controller.dart';
@@ -107,14 +106,19 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                               ),
                             ),
                             SizedBox(height: containerHeight * 0.35),
-                            AppText(
-                              text: 'Traditional spare \nribs baked',
-                              fontSize: 14,
+                            SizedBox(
+                              width: 150,
+                              child: AppText(
+                                overflow: TextOverflow.clip,
+                                text: '${widget.recipe.name ?? 'Recipe name'}',
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             Row(
                               children: [
                                 AppText(
-                                  text: 'By Chef John',
+                                  text: 'By....',
                                   fontSize: 8,
                                   fontWeight: FontWeight.w400,
                                 ),
@@ -164,7 +168,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                       fontSize: 16,
                     ),
                     AppText(
-                      text: '(13k Reviews)',
+                      text: '(1k Reviews)',
                       textColor: AppColors.greyColor,
                       fontWeight: FontWeight.w400,
                       fontSize: 14,
@@ -337,17 +341,31 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                                     ),
                                     child: Row(
                                       children: [
-                                        Image.asset(AppAssets.tomato),
-                                        SizedBox(width: 10),
-                                        AppText(
-                                          text: ingredient ?? '',
-                                          fontSize: 16,
-                                          textColor: Colors.black,
+                                        ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(100),
+                                          child: CachedNetworkImage(
+                                            fit: BoxFit.cover,
+                                            imageUrl: ingredient?.image ?? '',
+                                            errorWidget:
+                                                (context, url, error) =>
+                                                    Icon(Icons.error),
+                                          ),
+                                        ),
+                                        SizedBox(width: 20),
+                                        SizedBox(
+                                          width: 150,
+                                          child: AppText(
+                                            overflow: TextOverflow.clip,
+                                            text: ingredient?.name ?? '',
+                                            fontSize: 18,
+                                            textColor: Colors.black,
+                                          ),
                                         ),
                                         Spacer(),
                                         AppText(
-                                          text: '500g',
-                                          fontSize: 14,
+                                          text: ingredient?.price ?? '',
+                                          fontSize: 16,
                                           textColor: AppColors.greyColor,
                                         ),
                                       ],
@@ -359,7 +377,70 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                           ],
                         );
                       case 1:
-                        return const ProcedureTab();
+                        return Column(
+                          children: [
+                            Row(
+                              children: [
+                                SvgPicture.asset(AppAssets.serveIcon),
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                AppText(
+                                  text: '1 serve',
+                                  fontSize: 11,
+                                  textColor: AppColors.greyColor,
+                                ),
+                                Spacer(),
+                                AppText(
+                                  text:
+                                      '${widget.recipe.ingredients?.length ?? 0} Items',
+                                  fontSize: 11,
+                                  textColor: AppColors.greyColor,
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Expanded(
+                              child: ListView(
+                                scrollDirection: Axis.vertical,
+                                shrinkWrap: true,
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 15, vertical: 15),
+                                    margin: EdgeInsets.only(bottom: 10),
+                                    width: 315,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade200,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        AppText(
+                                          text: 'Process',
+                                          fontSize: 16,
+                                          textColor: Colors.black,
+                                        ),
+                                        SizedBox(
+                                          height: 5,
+                                        ),
+                                        AppText(
+                                          text: '${widget.recipe.procedure}',
+                                          fontSize: 14,
+                                          textColor: AppColors.greyColor,
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
                       default:
                         return const SizedBox.shrink();
                     }

@@ -1,15 +1,16 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:recipe_food/AppAssets/app_assets.dart';
 import 'package:recipe_food/CommenWidget/app_text.dart';
 import 'package:recipe_food/CommenWidget/recent_search_container.dart';
 import '../Controllers/home_screen_controller.dart';
 import '../Helpers/colors.dart';
-import '../HomeTabContent/all_tab.dart';
-import '../HomeTabContent/asian_tab.dart';
-import '../HomeTabContent/chines_tab.dart';
-import '../HomeTabContent/indian_tab.dart';
-import '../HomeTabContent/italian_tab.dart';
+import '../model/recepiemodel.dart';
+import 'item_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -29,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final HomeScreenController controller = Get.put(HomeScreenController());
   final TextEditingController _searchController = TextEditingController();
   bool _isSearchFocused = false;
+  double _rating = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -130,18 +132,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         width: 20,
                       ),
                       GestureDetector(
-                        onTap: () {
-                          controller.showForgetPasswordBottomSheet(context);
-                        },
+                        onTap: () {},
                         child: Container(
-                          height: 45,
-                          width: 45,
-                          decoration: BoxDecoration(
-                            color: AppColors.primaryColor,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Image.asset(AppAssets.filterIcon),
-                        ),
+                            height: 45,
+                            width: 45,
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryColor,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Icon(Icons.mic)),
                       )
                     ],
                   ),
@@ -257,26 +256,352 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                 ),
-                _isSearchFocused
-                    ? Center()
-                    : Expanded(
-                        child: Obx(() {
-                          switch (controller.selectedIndex) {
-                            case 0:
-                              return AllTab();
-                            case 1:
-                              return const IndianTab();
-                            case 2:
-                              return const ItalianTab();
-                            case 3:
-                              return const chinesTab();
-                            case 4:
-                              return const AsianTab();
-                            default:
-                              return const SizedBox.shrink();
-                          }
-                        }),
-                      ),
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('recipes')
+                      .snapshots(),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    }
+                    switch (snapshot.connectionState) {
+                      case ConnectionState.waiting:
+                        return CircularProgressIndicator();
+                      default:
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: 10),
+                              SizedBox(
+                                  height: 231,
+                                  child: ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: snapshot.data!.docs.length,
+                                      itemBuilder: (context, index) {
+                                        DocumentSnapshot doc =
+                                            snapshot.data!.docs[index];
+                                        final data =
+                                            doc.data() as Map<String, dynamic>;
+                                        Recipe recipe = Recipe(
+                                          image: data['image'] as String?,
+                                          name: data['name'] as String?,
+                                          procedure:
+                                              data['procedure'] as String?,
+                                          ingredients: (data['ringredient']
+                                                  as List<dynamic>?)
+                                              ?.map((item) =>
+                                                  Ingredient.fromMap(item
+                                                      as Map<String, dynamic>))
+                                              .toList(),
+                                          time: data['time'] as String?,
+                                        );
+                                        return Padding(
+                                          padding: const EdgeInsets.all(10),
+                                          child: InkWell(
+                                            onTap: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ItemDetailScreen(
+                                                            recipe: recipe)),
+                                              );
+                                            },
+                                            child: Stack(children: [
+                                              Container(
+                                                color: Colors.white,
+                                                width: 150,
+                                                height: 231,
+                                              ),
+                                              Positioned(
+                                                right: 0,
+                                                bottom: 0,
+                                                child: Container(
+                                                  padding:
+                                                      const EdgeInsets.all(10),
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            12),
+                                                    color: Colors.grey.shade200,
+                                                  ),
+                                                  height: 176,
+                                                  width: 150,
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.end,
+                                                    children: [
+                                                      Center(
+                                                          child: AppText(
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        text: recipe.name ??
+                                                            'Recipe Name',
+                                                        fontSize: 16,
+                                                        textColor: Colors.black,
+                                                      )),
+                                                      SizedBox(
+                                                        height: 5,
+                                                      ),
+                                                      AppText(
+                                                        text: 'Time',
+                                                        textColor: AppColors
+                                                            .blackColor,
+                                                        fontSize: 11,
+                                                        fontWeight:
+                                                            FontWeight.w400,
+                                                      ),
+                                                      Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        children: [
+                                                          AppText(
+                                                              text: recipe
+                                                                      .time ??
+                                                                  'Recipe Name',
+                                                              textColor: AppColors
+                                                                  .blackColor,
+                                                              fontSize: 11),
+                                                          Container(
+                                                              width: 20,
+                                                              height: 20,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            13),
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
+                                                              child: Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .all(
+                                                                        2.0),
+                                                                child: SvgPicture
+                                                                    .asset(AppAssets
+                                                                        .bookMarkIcon),
+                                                              )),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                              Positioned(
+                                                  right: 30,
+                                                  top: 0,
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            100),
+                                                    child: CachedNetworkImage(
+                                                      width: 100,
+                                                      height: 100,
+                                                      fit: BoxFit.cover,
+                                                      imageUrl: recipe.image!,
+                                                      errorWidget: (context,
+                                                              url, error) =>
+                                                          Icon(Icons.error),
+                                                    ),
+                                                  )
+                                                  // : Image.asset(
+                                                  //     AppAssets.foodImage,
+                                                  //     width: 150,
+                                                  //     height: 110,
+                                                  //   ),
+                                                  ),
+                                              Positioned(
+                                                  top: 30,
+                                                  right: 0,
+                                                  child: Container(
+                                                    padding: EdgeInsets.all(3),
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20),
+                                                      color: AppColors
+                                                          .lightOrangeColor,
+                                                    ),
+                                                    height: 23,
+                                                    width: 45,
+                                                    child: Row(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        SvgPicture.asset(
+                                                            AppAssets.starIcon),
+                                                        SizedBox(
+                                                          width: 3,
+                                                        ),
+                                                        AppText(
+                                                          text: '4.5',
+                                                          fontWeight:
+                                                              FontWeight.w200,
+                                                          fontSize: 11,
+                                                          textColor:
+                                                              Colors.black,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  )),
+                                            ]),
+                                          ),
+                                        );
+                                      })),
+                              SizedBox(height: 20),
+                              AppText(
+                                text: 'New Recipes',
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                                textColor: Colors.black,
+                              ),
+                              SizedBox(height: 10),
+                              SizedBox(
+                                  height: 127,
+                                  child: ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: 7,
+                                      itemBuilder: (context, index) {
+                                        return Padding(
+                                            padding: const EdgeInsets.only(
+                                                right: 10),
+                                            child: Stack(children: [
+                                              Container(
+                                                color: Colors.white,
+                                                width: 251,
+                                                height: 127,
+                                              ),
+                                              Positioned(
+                                                right: 0,
+                                                bottom: 0,
+                                                child: Container(
+                                                  padding: EdgeInsets.all(10),
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            12),
+                                                    color: Colors.grey.shade100,
+                                                  ),
+                                                  height: 95,
+                                                  width: 251,
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      AppText(
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        text:
+                                                            'Steak with tomato..',
+                                                        fontSize: 14,
+                                                        textColor: Colors.black,
+                                                      ),
+                                                      RatingBar.builder(
+                                                        initialRating: _rating,
+                                                        minRating: 1,
+                                                        direction:
+                                                            Axis.horizontal,
+                                                        allowHalfRating: true,
+                                                        itemCount: 5,
+                                                        itemSize: 12,
+                                                        itemBuilder:
+                                                            (context, _) =>
+                                                                Icon(
+                                                          Icons.star,
+                                                          color: Colors.amber,
+                                                        ),
+                                                        onRatingUpdate:
+                                                            (double value) {},
+                                                        // onRatingUpdate: (rating) {
+                                                        //   setState(() {
+                                                        //     _rating = rating;
+                                                        //   });
+                                                        // },
+                                                      ),
+                                                      Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Container(
+                                                            width: 25,
+                                                            height: 25,
+                                                            child: ClipRRect(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          13),
+                                                              child: Image.asset(
+                                                                  AppAssets
+                                                                      .personImage),
+                                                            ),
+                                                          ),
+                                                          SizedBox(
+                                                            width: 5,
+                                                          ),
+                                                          AppText(
+                                                            text:
+                                                                'By James Milner',
+                                                            textColor: AppColors
+                                                                .blackColor,
+                                                            fontSize: 11,
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                          ),
+                                                          SizedBox(
+                                                            width: 50,
+                                                          ),
+                                                          AppText(
+                                                            text: '20 mins',
+                                                            textColor: AppColors
+                                                                .blackColor,
+                                                            fontSize: 11,
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                          ),
+                                                          SizedBox(
+                                                            width: 5,
+                                                          ),
+                                                          SvgPicture.asset(
+                                                              AppAssets
+                                                                  .timerIcon),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                              Positioned(
+                                                right: 0,
+                                                top: 0,
+                                                child: Image.asset(
+                                                  AppAssets.recipiesImage,
+                                                  width: 105,
+                                                  height: 94,
+                                                ),
+                                              ),
+                                            ]));
+                                      }))
+                            ],
+                          ),
+                        );
+                    }
+                  },
+                )
               ],
             ),
           ),
