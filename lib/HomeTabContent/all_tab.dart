@@ -21,7 +21,7 @@ class AllTab extends StatelessWidget {
         }
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
-            return CircularProgressIndicator();
+            return const CircularProgressIndicator();
           default:
             return SingleChildScrollView(
               scrollDirection: Axis.vertical,

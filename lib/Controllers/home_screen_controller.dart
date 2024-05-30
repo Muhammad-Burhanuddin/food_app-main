@@ -60,7 +60,7 @@ class HomeScreenController extends GetxController {
     }
   }
 
-  // Fetch recipes from Firestore
+// Fetch recipes from Firestore
   Future<void> getRecipes() async {
     try {
       QuerySnapshot querySnapshot = await _recipesRef.get();

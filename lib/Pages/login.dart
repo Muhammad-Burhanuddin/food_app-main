@@ -187,7 +187,7 @@ class _LoginScreenState extends State<LoginScreen> {
         content: Text(message),
         actions: <Widget>[
           TextButton(
-            child: Text('Okay'),
+            child: Text('Ovkay'),
             onPressed: () {
               Navigator.of(ctx).pop();
             },
