@@ -9,9 +9,11 @@ import 'package:recipe_food/CommenWidget/app_text.dart';
 import 'package:recipe_food/CommenWidget/recent_search_container.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:translator/translator.dart';
+import 'package:flutter_langdetect/flutter_langdetect.dart' as langdetect;
 import '../Controllers/home_screen_controller.dart';
 import '../Helpers/colors.dart';
 import '../model/recepiemodel.dart';
+import '../model/user_model.dart';
 import 'item_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -32,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final HomeScreenController controller = Get.put(HomeScreenController());
   final TextEditingController _searchController = TextEditingController();
   bool _isSearchFocused = false;
-  double _rating = 0;
+  final double _rating = 0;
   late stt.SpeechToText _speech;
   bool _isListening = false;
   final translator = GoogleTranslator();
@@ -41,6 +43,11 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _speech = stt.SpeechToText();
+    _initializeLangDetect();
+  }
+
+  void _initializeLangDetect() async {
+    await langdetect.initLangDetect();
   }
 
   void _listen() async {
@@ -53,12 +60,14 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() => _isListening = true);
         _speech.listen(
           onResult: (val) async {
-            String translatedText = await _translateText(val.recognizedWords);
+            String recognizedText = val.recognizedWords;
+            String translatedText = await _translateText(recognizedText);
             _searchController.text = translatedText;
             _searchRecipes(translatedText);
             setState(() => _isListening = false);
             _speech.stop();
           },
+          localeId: 'ur-PK', // Set the locale for Urdu
         );
       }
     } else {
@@ -68,8 +77,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<String> _translateText(String text) async {
-    final translation = await translator.translate(text, from: 'ur', to: 'en');
-    return translation.text;
+    String language = langdetect.detect(text);
+    if (language != 'en') {
+      final translation =
+          await translator.translate(text, from: language, to: 'en');
+      return translation.text;
+    }
+    return text; // Return the original text if it's in English
   }
 
   void _searchRecipes(String query) {
@@ -83,8 +97,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery.of(context).size;
-    final bool isTabletScreen = size.width >= 600;
+    final Map<String, dynamic> args = Get.arguments ?? {};
+    final UserModel user = args['user'] ?? UserModel(name: 'Guest');
     return DefaultTabController(
       length: 5,
       child: Scaffold(
@@ -100,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding: const EdgeInsets.only(left: 7),
                   child: ListTile(
                     title: AppText(
-                      text: 'Hello Fola',
+                      text: 'Welcome, ${user.name}',
                       textColor: Colors.black,
                       fontSize: 20,
                     ),

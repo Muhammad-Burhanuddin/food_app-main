@@ -1301,3 +1301,109 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+  // bool _isSearchFocused = false;
+  // final double _rating = 0;
+  // late stt.SpeechToText _speech;
+  // bool _isListening = false;
+  // final translator = GoogleTranslator();
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _speech = stt.SpeechToText();
+  // }
+
+  // void _listen() async {
+  //   if (!_isListening) {
+  //     bool available = await _speech.initialize(
+  //       onStatus: (val) => print('onStatus: $val'),
+  //       onError: (val) => print('onError: $val'),
+  //     );
+  //     if (available) {
+  //       setState(() => _isListening = true);
+  //       _speech.listen(
+  //         onResult: (val) async {
+  //           String recognizedText = val.recognizedWords;
+  //           String translatedText = await _translateText(recognizedText);
+  //           _searchController.text = translatedText;
+  //           _searchRecipes(translatedText);
+  //           setState(() => _isListening = false);
+  //           _speech.stop();
+  //         },
+  //       );
+  //     }
+  //   } else {
+  //     setState(() => _isListening = false);
+  //     _speech.stop();
+  //   }
+  // }
+
+  // Future<String> _translateText(String text) async {
+  //   // Basic heuristic to detect if the text contains Urdu script
+  //   bool isUrdu = RegExp(r'[\u0600-\u06FF]').hasMatch(text);
+  //   if (isUrdu) {
+  //     final translation =
+  //         await translator.translate(text, from: 'ur', to: 'en');
+  //     return translation.text;
+  //   }
+  //   return text; // Return the original text if it's not in Urdu
+  // }
+
+  // void _searchRecipes(String query) {
+  //   final filteredRecipes = controller.recipes.where((recipe) {
+  //     return recipe.name!.toLowerCase().contains(query.toLowerCase()) ||
+  //         recipe.ingredients!.any((ingredient) =>
+  //             ingredient.name!.toLowerCase().contains(query.toLowerCase()));
+  //   }).toList();
+  //   controller.filteredRecipes.value = filteredRecipes;
+  // }
+// 
+  // bool _isSearchFocused = false;
+  // double _rating = 0;
+  // late stt.SpeechToText _speech;
+  // bool _isListening = false;
+  // final translator = GoogleTranslator();
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _speech = stt.SpeechToText();
+  // }
+
+  // void _listen() async {
+  //   if (!_isListening) {
+  //     bool available = await _speech.initialize(
+  //       onStatus: (val) => print('onStatus: $val'),
+  //       onError: (val) => print('onError: $val'),
+  //     );
+  //     if (available) {
+  //       setState(() => _isListening = true);
+  //       _speech.listen(
+  //         onResult: (val) async {
+  //           String translatedText = await _translateText(val.recognizedWords);
+  //           _searchController.text = translatedText;
+  //           _searchRecipes(translatedText);
+  //           setState(() => _isListening = false);
+  //           _speech.stop();
+  //         },
+  //       );
+  //     }
+  //   } else {
+  //     setState(() => _isListening = false);
+  //     _speech.stop();
+  //   }
+  // }
+
+  // Future<String> _translateText(String text) async {
+  //   final translation = await translator.translate(text, from: 'ur', to: 'en');
+  //   return translation.text;
+  // }
+
+  // void _searchRecipes(String query) {
+  //   final filteredRecipes = controller.recipes.where((recipe) {
+  //     return recipe.name!.toLowerCase().contains(query.toLowerCase()) ||
+  //         recipe.ingredients!.any((ingredient) =>
+  //             ingredient.name!.toLowerCase().contains(query.toLowerCase()));
+  //   }).toList();
+  //   controller.filteredRecipes.value = filteredRecipes;
+  // }

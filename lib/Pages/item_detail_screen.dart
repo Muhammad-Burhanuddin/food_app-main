@@ -165,7 +165,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                     AppText(
                       text: '${widget.recipe.name ?? 'Recipe name'}',
                       textColor: Colors.black,
-                      fontSize: 16,
+                      fontSize: 14,
                     ),
                     AppText(
                       text: '(1k Reviews)',
@@ -334,7 +334,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                                     padding: EdgeInsets.all(10),
                                     margin: EdgeInsets.only(bottom: 10),
                                     width: 315,
-                                    height: 76,
+                                    height: 70,
                                     decoration: BoxDecoration(
                                       color: Colors.grey.shade200,
                                       borderRadius: BorderRadius.circular(10),
@@ -358,7 +358,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                                           child: AppText(
                                             overflow: TextOverflow.clip,
                                             text: ingredient?.name ?? '',
-                                            fontSize: 18,
+                                            fontSize: 14,
                                             textColor: Colors.black,
                                           ),
                                         ),

@@ -7,7 +7,6 @@ import '../Controllers/home_screen_controller.dart';
 import '../Helpers/colors.dart';
 import 'homescreen.dart';
 import 'notifications_screen.dart';
-import 'searchbyingredients.dart';
 
 class BottomNavigationBar extends StatefulWidget {
   const BottomNavigationBar({super.key});

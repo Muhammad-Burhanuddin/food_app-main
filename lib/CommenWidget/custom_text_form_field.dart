@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-
 import 'app_text.dart';
 
 class CustomTextFormField extends StatelessWidget {
   final String? label;
   final String hintText;
-  final TextEditingController? controller; // Added controller parameter
+  final TextEditingController? controller;
   final double? width;
   final double? height;
   final Color? borderColor;
+  final String? Function(String?)? validator; // Added validator parameter
 
   const CustomTextFormField({
     super.key,
     this.label,
     required this.hintText,
-    this.controller, // Updated constructor to accept controller
+    this.controller,
     this.width,
     this.height,
     this.borderColor,
+    this.validator, // Updated constructor to accept validator
   });
 
   @override
@@ -41,6 +41,7 @@ class CustomTextFormField extends StatelessWidget {
           child: TextFormField(
             controller: controller, // Pass controller to TextFormField
             cursorColor: Colors.grey,
+            validator: validator, // Pass validator to TextFormField
             decoration: InputDecoration(
               hintText: hintText,
               hintStyle: TextStyle(

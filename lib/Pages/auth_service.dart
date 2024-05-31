@@ -1,10 +1,13 @@
 import 'dart:developer';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
+import '../model/user_model.dart';
 
 class AuthService {
   final _auth = FirebaseAuth.instance;
-
+  final _firestore = FirebaseFirestore.instance;
   Future<User?> createUserWithEmailAndPassword(
       String email, String password) async {
     try {
@@ -29,6 +32,18 @@ class AuthService {
       log("Error logging in: ${e.message}");
     } catch (e) {
       log("Unexpected error logging in: $e");
+    }
+    return null;
+  }
+
+  Future<UserModel?> fetchUserDetails(String userId) async {
+    try {
+      final doc = await _firestore.collection('User').doc(userId).get();
+      if (doc.exists) {
+        return UserModel.fromJson(doc.data()!);
+      }
+    } catch (e) {
+      log("Error fetching user details: $e");
     }
     return null;
   }

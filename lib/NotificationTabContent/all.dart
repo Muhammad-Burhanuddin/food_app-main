@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:recipe_food/CommenWidget/notificationContainer.dart';
 
 import '../CommenWidget/app_text.dart';
-import '../CommenWidget/saved_container.dart';
-
-
-
 
 class All extends StatefulWidget {
   const All({super.key});
@@ -21,26 +17,35 @@ class _AllState extends State<All> {
       scrollDirection: Axis.vertical,
       child: Column(
         children: [
-          AppText(text: 'Today',fontSize: 11,textColor: Colors.black,),
+          AppText(
+            text: 'Today',
+            fontSize: 11,
+            textColor: Colors.black,
+          ),
           ListView.builder(
-            scrollDirection: Axis.vertical,
+              scrollDirection: Axis.vertical,
               shrinkWrap: true,
               itemCount: 2,
-              itemBuilder: (index,context){
+              itemBuilder: (index, context) {
                 return NotificationContainer();
               }),
-          AppText(text: 'Yesterday',fontSize: 11,textColor: Colors.black,),
+          AppText(
+            text: 'Yesterday',
+            fontSize: 11,
+            textColor: Colors.black,
+          ),
           ListView.builder(
               scrollDirection: Axis.vertical,
               shrinkWrap: true,
               itemCount: 3,
-              itemBuilder: (index,context){
+              itemBuilder: (index, context) {
                 return NotificationContainer();
               }),
-          SizedBox(height: 20,),
+          SizedBox(
+            height: 20,
+          ),
         ],
       ),
     );
-
   }
 }
