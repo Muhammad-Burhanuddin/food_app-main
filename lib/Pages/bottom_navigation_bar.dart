@@ -23,7 +23,7 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
 
   final List<Widget> _screens = [
     HomeScreen(),
-    SearchByIngredients(),
+    SavedScreen(),
     NotificationsScreen(),
     ProfileScreen(),
   ];
@@ -33,7 +33,7 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       floatingActionButton: Container(
-        width: 56.0, // Width and height should be equal to create a circle
+        width: 56.0,
         height: 56.0,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
@@ -54,7 +54,7 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: AnimatedBottomNavigationBar(
         activeColor: AppColors.primaryColor,
-        inactiveColor: AppColors.lightGreyColor,
+        inactiveColor: AppColors.blackColor,
         icons: [
           Icons.home_outlined,
           Icons.save_alt_sharp,
