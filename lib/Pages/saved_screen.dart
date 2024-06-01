@@ -22,11 +22,12 @@ class _SavedScreenState extends State<SavedScreen> {
     final containerHeight = screenHeight * 0.2; // 20% of screen height
     return Scaffold(
         appBar: AppBar(
+          backgroundColor: AppColors.primaryColor,
           automaticallyImplyLeading: false,
           title: AppText(
             text: 'Saved Recipies',
             fontSize: 18,
-            textColor: Colors.black,
+            textColor: Colors.white,
           ),
           centerTitle: true,
         ),

@@ -61,13 +61,14 @@ class HomeScreenController extends GetxController {
   }
 
   // Fetch recipes from Firestore
-  Future<void> getRecipes() async {
+  void getRecipes() {
     try {
-      QuerySnapshot querySnapshot = await _recipesRef.get();
-      final allData =
-          querySnapshot.docs.map((doc) => Recipe.fromFirestore(doc)).toList();
-      recipes.value = allData;
-      filteredRecipes.value = allData;
+      _recipesRef.snapshots().listen((querySnapshot) {
+        final allData =
+            querySnapshot.docs.map((doc) => Recipe.fromFirestore(doc)).toList();
+        recipes.value = allData;
+        filteredRecipes.value = allData;
+      });
     } catch (e) {
       print("Error getting recipes: $e");
     }
@@ -147,7 +148,7 @@ class HomeScreenController extends GetxController {
                           toggleSelection(index);
                         },
                         fontSize: 11,
-                        label: index == 0 ? "All" : ingredients[index],
+                        label: ingredients[index],
                         height: 34,
                         width: 65,
                         borderColor: selectedIngredients[index].value
@@ -177,11 +178,5 @@ class HomeScreenController extends GetxController {
         );
       },
     );
-
-    @override
-    void onInit() {
-      super.onInit();
-      getIngredients();
-    }
   }
 }

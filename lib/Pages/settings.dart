@@ -30,7 +30,7 @@ class _SettingsState extends State<Settings> {
         children: [
           ListTile(
             onTap: () async {
-              await auth.signout();
+              await auth.signOut();
               goToLogin(context);
             },
             title: AppText(

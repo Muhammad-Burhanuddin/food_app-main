@@ -1,13 +1,12 @@
 import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import '../model/user_model.dart';
 
 class AuthService {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
+
   Future<User?> createUserWithEmailAndPassword(
       String email, String password) async {
     try {
@@ -48,11 +47,26 @@ class AuthService {
     return null;
   }
 
-  Future<void> signout() async {
+  Future<void> updateUserProfilePicture(String userId, String imageUrl) async {
+    try {
+      await _firestore
+          .collection('User')
+          .doc(userId)
+          .update({'imageUrl': imageUrl});
+    } catch (e) {
+      log("Error updating profile picture: $e");
+    }
+  }
+
+  Future<void> signOut() async {
     try {
       await _auth.signOut();
     } catch (e) {
       log("Error signing out: $e");
     }
+  }
+
+  User? getCurrentUser() {
+    return _auth.currentUser;
   }
 }

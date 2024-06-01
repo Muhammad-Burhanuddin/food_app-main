@@ -10,7 +10,9 @@ import '../Pages/item_detail_screen.dart';
 import '../model/recepiemodel.dart';
 
 class AllTab extends StatelessWidget {
-  double _rating = 0;
+  final double _rating = 0;
+
+  const AllTab({super.key});
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
@@ -30,7 +32,7 @@ class AllTab extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     SizedBox(
                         height: 231,
                         child: ListView.builder(
@@ -93,10 +95,10 @@ class AllTab extends StatelessWidget {
                                               fontSize: 16,
                                               textColor: Colors.black,
                                             )),
-                                            SizedBox(
+                                            const SizedBox(
                                               height: 5,
                                             ),
-                                            AppText(
+                                            const AppText(
                                               text: 'Time',
                                               textColor: AppColors.blackColor,
                                               fontSize: 11,
@@ -149,7 +151,7 @@ class AllTab extends StatelessWidget {
                                             imageUrl: recipe.image!,
                                             errorWidget:
                                                 (context, url, error) =>
-                                                    Icon(Icons.error),
+                                                    const Icon(Icons.error),
                                           ),
                                         )
                                         // : Image.asset(
@@ -162,7 +164,7 @@ class AllTab extends StatelessWidget {
                                         top: 30,
                                         right: 0,
                                         child: Container(
-                                          padding: EdgeInsets.all(3),
+                                          padding: const EdgeInsets.all(3),
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(20),
@@ -176,10 +178,10 @@ class AllTab extends StatelessWidget {
                                             children: [
                                               SvgPicture.asset(
                                                   AppAssets.starIcon),
-                                              SizedBox(
+                                              const SizedBox(
                                                 width: 3,
                                               ),
-                                              AppText(
+                                              const AppText(
                                                 text: '4.5',
                                                 fontWeight: FontWeight.w200,
                                                 fontSize: 11,
@@ -192,14 +194,14 @@ class AllTab extends StatelessWidget {
                                 ),
                               );
                             })),
-                    SizedBox(height: 20),
-                    AppText(
+                    const SizedBox(height: 20),
+                    const AppText(
                       text: 'New Recipes',
                       fontWeight: FontWeight.w600,
                       fontSize: 16,
                       textColor: Colors.black,
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     SizedBox(
                         height: 127,
                         child: ListView.builder(
@@ -218,7 +220,7 @@ class AllTab extends StatelessWidget {
                                       right: 0,
                                       bottom: 0,
                                       child: Container(
-                                        padding: EdgeInsets.all(10),
+                                        padding: const EdgeInsets.all(10),
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(12),
@@ -232,7 +234,7 @@ class AllTab extends StatelessWidget {
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
                                           children: [
-                                            AppText(
+                                            const AppText(
                                               textAlign: TextAlign.center,
                                               text: 'Steak with tomato..',
                                               fontSize: 14,
@@ -245,7 +247,8 @@ class AllTab extends StatelessWidget {
                                               allowHalfRating: true,
                                               itemCount: 5,
                                               itemSize: 12,
-                                              itemBuilder: (context, _) => Icon(
+                                              itemBuilder: (context, _) =>
+                                                  const Icon(
                                                 Icons.star,
                                                 color: Colors.amber,
                                               ),
@@ -260,7 +263,7 @@ class AllTab extends StatelessWidget {
                                               mainAxisAlignment:
                                                   MainAxisAlignment.center,
                                               children: [
-                                                Container(
+                                                SizedBox(
                                                   width: 25,
                                                   height: 25,
                                                   child: ClipRRect(
@@ -271,27 +274,27 @@ class AllTab extends StatelessWidget {
                                                         AppAssets.personImage),
                                                   ),
                                                 ),
-                                                SizedBox(
+                                                const SizedBox(
                                                   width: 5,
                                                 ),
-                                                AppText(
+                                                const AppText(
                                                   text: 'By James Milner',
                                                   textColor:
                                                       AppColors.blackColor,
                                                   fontSize: 11,
                                                   fontWeight: FontWeight.w400,
                                                 ),
-                                                SizedBox(
+                                                const SizedBox(
                                                   width: 50,
                                                 ),
-                                                AppText(
+                                                const AppText(
                                                   text: '20 mins',
                                                   textColor:
                                                       AppColors.blackColor,
                                                   fontSize: 11,
                                                   fontWeight: FontWeight.w400,
                                                 ),
-                                                SizedBox(
+                                                const SizedBox(
                                                   width: 5,
                                                 ),
                                                 SvgPicture.asset(

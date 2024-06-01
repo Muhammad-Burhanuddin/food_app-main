@@ -1,18 +1,15 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:recipe_food/AppAssets/app_assets.dart';
 import 'package:recipe_food/CommenWidget/app_text.dart';
-import 'package:recipe_food/CommenWidget/recent_search_container.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:translator/translator.dart';
 import 'package:flutter_langdetect/flutter_langdetect.dart' as langdetect;
 import '../Controllers/home_screen_controller.dart';
 import '../Helpers/colors.dart';
-import '../model/recepiemodel.dart';
 import '../model/user_model.dart';
 import 'item_detail_screen.dart';
 
@@ -34,7 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final HomeScreenController controller = Get.put(HomeScreenController());
   final TextEditingController _searchController = TextEditingController();
   bool _isSearchFocused = false;
-  final double _rating = 0;
+  double _rating = 0;
   late stt.SpeechToText _speech;
   bool _isListening = false;
   final translator = GoogleTranslator();
@@ -367,129 +364,126 @@ class _HomeScreenState extends State<HomeScreen> {
                         SizedBox(height: 20),
                         AppText(
                           text: 'New Recipes',
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.bold,
                           fontSize: 16,
                           textColor: Colors.black,
                         ),
                         SizedBox(height: 10),
                         SizedBox(
-                            height: 127,
+                            height: 130,
                             child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
-                                itemCount: 7,
+                                itemCount: controller.recipes.length,
                                 itemBuilder: (context, index) {
+                                  final recipe = controller.recipes[index];
                                   return Padding(
-                                      padding: const EdgeInsets.only(right: 10),
-                                      child: Stack(children: [
-                                        Container(
+                                    padding: const EdgeInsets.only(right: 10),
+                                    child: Stack(children: [
+                                      Container(
                                           color: Colors.white,
                                           width: 251,
-                                          height: 127,
-                                        ),
-                                        Positioned(
-                                          right: 0,
-                                          bottom: 0,
-                                          child: Container(
-                                            padding: EdgeInsets.all(10),
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                              color: Colors.grey.shade100,
-                                            ),
-                                            height: 95,
-                                            width: 251,
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                AppText(
+                                          height: 127),
+                                      Positioned(
+                                        right: 0,
+                                        bottom: 0,
+                                        child: Container(
+                                          padding: EdgeInsets.all(10),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            color: Colors.grey.shade100,
+                                          ),
+                                          height: 95,
+                                          width: 251,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              SizedBox(
+                                                child: AppText(
                                                   textAlign: TextAlign.center,
-                                                  text: 'Steak with tomato..',
+                                                  text: recipe.name ??
+                                                      'Recipe Name',
                                                   fontSize: 14,
                                                   textColor: Colors.black,
                                                 ),
-                                                RatingBar.builder(
-                                                  initialRating: _rating,
-                                                  minRating: 1,
-                                                  direction: Axis.horizontal,
-                                                  allowHalfRating: true,
-                                                  itemCount: 5,
-                                                  itemSize: 12,
-                                                  itemBuilder: (context, _) =>
-                                                      Icon(
-                                                    Icons.star,
-                                                    color: Colors.amber,
+                                              ),
+                                              RatingBar.builder(
+                                                initialRating: 4.5,
+                                                minRating: 1,
+                                                direction: Axis.horizontal,
+                                                allowHalfRating: true,
+                                                itemCount: 5,
+                                                itemSize: 12,
+                                                itemBuilder: (context, _) =>
+                                                    Icon(Icons.star,
+                                                        color: Colors.amber),
+                                                onRatingUpdate:
+                                                    (double value) {},
+                                              ),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Container(
+                                                    width: 25,
+                                                    height: 25,
+                                                    child: ClipRRect(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              13),
+                                                      child: Image.asset(
+                                                          AppAssets
+                                                              .personImage),
+                                                    ),
                                                   ),
-                                                  onRatingUpdate:
-                                                      (double value) {},
-                                                  // onRatingUpdate: (rating) {
-                                                  //   setState(() {
-                                                  //     _rating = rating;
-                                                  //   });
-                                                  // },
-                                                ),
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Container(
-                                                      width: 25,
-                                                      height: 25,
-                                                      child: ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(13),
-                                                        child: Image.asset(
-                                                            AppAssets
-                                                                .personImage),
-                                                      ),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 5,
-                                                    ),
-                                                    AppText(
-                                                      text: 'By James Milner',
-                                                      textColor:
-                                                          AppColors.blackColor,
-                                                      fontSize: 11,
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                    ),
-                                                    SizedBox(
-                                                      width: 50,
-                                                    ),
-                                                    AppText(
-                                                      text: '20 mins',
-                                                      textColor:
-                                                          AppColors.blackColor,
-                                                      fontSize: 11,
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                    ),
-                                                    SizedBox(
-                                                      width: 5,
-                                                    ),
-                                                    SvgPicture.asset(
-                                                        AppAssets.timerIcon),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
+                                                  SizedBox(width: 5),
+                                                  AppText(
+                                                    text: 'By  Unknown}',
+                                                    textColor:
+                                                        AppColors.blackColor,
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.w400,
+                                                  ),
+                                                  SizedBox(width: 50),
+                                                  AppText(
+                                                    text:
+                                                        '${recipe.time ?? 'Unknown'}',
+                                                    textColor:
+                                                        AppColors.blackColor,
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.w400,
+                                                  ),
+                                                  SizedBox(width: 5),
+                                                  SvgPicture.asset(
+                                                      AppAssets.timerIcon),
+                                                ],
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                        Positioned(
-                                          right: 0,
-                                          top: 0,
-                                          child: Image.asset(
-                                            AppAssets.recipiesImage,
-                                            width: 105,
-                                            height: 94,
+                                      ),
+                                      Positioned(
+                                        right: 0,
+                                        top: 0,
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(100),
+                                          child: CachedNetworkImage(
+                                            width: 80,
+                                            height: 80,
+                                            fit: BoxFit.cover,
+                                            imageUrl: recipe.image!,
+                                            errorWidget:
+                                                (context, url, error) =>
+                                                    Icon(Icons.error),
                                           ),
                                         ),
-                                      ]));
+                                      ),
+                                    ]),
+                                  );
                                 }))
                       ],
                     ),
