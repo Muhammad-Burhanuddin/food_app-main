@@ -247,9 +247,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             case 0:
                               return RecipeTab();
                             case 1:
-                              return const VideosTab();
+                              return const RecipeTab();
                             case 2:
-                              return const TagTab();
+                              return const RecipeTab();
                             default:
                               return const SizedBox.shrink();
                           }

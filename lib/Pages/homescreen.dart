@@ -1,15 +1,18 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:recipe_food/AppAssets/app_assets.dart';
 import 'package:recipe_food/CommenWidget/app_text.dart';
+import 'package:recipe_food/Helpers/colors.dart';
+import 'package:recipe_food/Pages/recentsearch.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:translator/translator.dart';
 import 'package:flutter_langdetect/flutter_langdetect.dart' as langdetect;
 import '../Controllers/home_screen_controller.dart';
-import '../Helpers/colors.dart';
 import '../model/user_model.dart';
 import 'item_detail_screen.dart';
 
@@ -35,12 +38,81 @@ class _HomeScreenState extends State<HomeScreen> {
   late stt.SpeechToText _speech;
   bool _isListening = false;
   final translator = GoogleTranslator();
+  SharedPreferences? _prefs;
+  List<String> _recentSearches = [];
 
   @override
   void initState() {
     super.initState();
     _speech = stt.SpeechToText();
     _initializeLangDetect();
+    _initPrefs();
+    _loadRecentSearches();
+  }
+
+  void _loadRecentSearches() async {
+    _recentSearches = await fetchRecentSearches();
+    _searchRecipes(_recentSearches.join(' '));
+    setState(() {});
+  }
+
+  void _onSearch(String query) {
+    if (query.isEmpty) {
+      controller.filteredRecipes.value = controller.recipes;
+    } else {
+      saveSearchQuery(query);
+      _searchRecipes(query);
+    }
+    setState(() {});
+  }
+
+  void _initPrefs() async {
+    _prefs = await SharedPreferences.getInstance();
+  }
+
+  Future<List<String>> fetchRecentSearches() async {
+    List<String> recentSearches = [];
+    final firestore = FirebaseFirestore.instance;
+
+    var querySnapshot = await firestore.collection('recentSearches').get();
+    for (var doc in querySnapshot.docs) {
+      recentSearches.add(doc['searchQuery']);
+    }
+
+    return recentSearches;
+  }
+
+  void saveSearchQuery(String query) async {
+    final firestore = FirebaseFirestore.instance;
+    try {
+      await firestore.collection('recentSearches').add({'searchQuery': query});
+      print('Search query saved: $query');
+    } catch (e) {
+      print('Error saving search query: $e');
+    }
+  }
+
+  void _saveRecipeToBookmarks(String recipeName) {
+    List<String> bookmarks = _prefs?.getStringList('saved recipes') ?? [];
+    if (bookmarks.contains(recipeName)) {
+      bookmarks.remove(recipeName);
+      print('$recipeName removed from saved recipes');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$recipeName removed from saved recipes')),
+      );
+    } else {
+      bookmarks.add(recipeName);
+      print('$recipeName added to saved recipes');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$recipeName added to saved recipes')),
+      );
+    }
+    _prefs?.setStringList('saved recipes', bookmarks);
+  }
+
+  bool _isRecipeBookmarked(String recipeName) {
+    List<String> bookmarks = _prefs?.getStringList('bookmarks') ?? [];
+    return bookmarks.contains(recipeName);
   }
 
   void _initializeLangDetect() async {
@@ -64,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
             setState(() => _isListening = false);
             _speech.stop();
           },
-          localeId: 'ur-PK', // Set the locale for Urdu
+          localeId: 'ur-PK',
         );
       }
     } else {
@@ -80,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
           await translator.translate(text, from: language, to: 'en');
       return translation.text;
     }
-    return text; // Return the original text if it's in English
+    return text;
   }
 
   void _searchRecipes(String query) {
@@ -115,24 +187,36 @@ class _HomeScreenState extends State<HomeScreen> {
                       textColor: Colors.black,
                       fontSize: 20,
                     ),
-                    subtitle: AppText(
+                    subtitle: const AppText(
                       text: 'What are you cooking today?',
                       textColor: Colors.black,
                       fontSize: 11,
                       fontWeight: FontWeight.w400,
                     ),
                     trailing: Container(
-                      width: 45,
-                      height: 45,
+                      width: 60,
+                      height: 60,
                       decoration: BoxDecoration(
                         color: AppColors.orangeColor,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Image.asset(AppAssets.profileIcon),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.network(
+                          user.imageUrl ?? AppAssets.profileIcon,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Image.asset(
+                              AppAssets.profileIcon,
+                              fit: BoxFit.cover,
+                            );
+                          },
+                        ),
+                      ),
                     ),
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
                 Padding(
@@ -157,16 +241,16 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             child: Row(
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.search,
                                   color: Colors.grey,
                                 ),
-                                SizedBox(width: 10),
+                                const SizedBox(width: 10),
                                 Expanded(
                                   child: TextFormField(
                                     cursorColor: Colors.grey,
                                     controller: _searchController,
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                       hintText: 'Search',
                                       border: InputBorder.none,
                                     ),
@@ -176,10 +260,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                       });
                                     },
                                     onChanged: (value) {
-                                      _searchRecipes(value);
+                                      _onSearch(value);
                                     },
                                     onSaved: (value) {
-                                      _searchRecipes(value!);
+                                      _onSearch(value!);
                                     },
                                   ),
                                 ),
@@ -188,7 +272,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 20,
                       ),
                       GestureDetector(
@@ -206,14 +290,56 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
-                SizedBox(height: 30),
+                if (_isSearchFocused)
+                  Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        height: 40,
+                        child: Row(
+                          children: [
+                            const Expanded(
+                              child: Text(
+                                'Recent Searches',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                setState(() {
+                                  _isSearchFocused = false;
+                                  _searchController.clear();
+                                  _onSearch('');
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: _recentSearches.length,
+                        itemBuilder: (context, index) {
+                          return RecentSearchContainer(
+                            searchQuery: _recentSearches[index],
+                            onSearchSelected: (query) {
+                              _searchController.text = query;
+                              _onSearch(query);
+                            },
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                const SizedBox(height: 30),
                 Obx(() {
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         SizedBox(
                           height: 231,
                           child: ListView.builder(
@@ -265,10 +391,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                               fontSize: 16,
                                               textColor: Colors.black,
                                             )),
-                                            SizedBox(
+                                            const SizedBox(
                                               height: 5,
                                             ),
-                                            AppText(
+                                            const AppText(
                                               text: 'Time',
                                               textColor: AppColors.blackColor,
                                               fontSize: 11,
@@ -285,21 +411,28 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     textColor:
                                                         AppColors.blackColor,
                                                     fontSize: 11),
-                                                Container(
-                                                  width: 20,
-                                                  height: 20,
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            13),
-                                                    color: Colors.white,
-                                                  ),
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            2.0),
-                                                    child: SvgPicture.asset(
-                                                        AppAssets.bookMarkIcon),
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    _saveRecipeToBookmarks(
+                                                        recipe.name!);
+                                                  },
+                                                  child: Container(
+                                                    width: 20,
+                                                    height: 20,
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              13),
+                                                      color: Colors.white,
+                                                    ),
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              2.0),
+                                                      child: SvgPicture.asset(
+                                                          AppAssets
+                                                              .bookMarkIcon),
+                                                    ),
                                                   ),
                                                 ),
                                               ],
@@ -320,7 +453,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           fit: BoxFit.cover,
                                           imageUrl: recipe.image!,
                                           errorWidget: (context, url, error) =>
-                                              Icon(Icons.error),
+                                              const Icon(Icons.error),
                                         ),
                                       ),
                                     ),
@@ -328,7 +461,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       top: 30,
                                       right: 0,
                                       child: Container(
-                                        padding: EdgeInsets.all(3),
+                                        padding: const EdgeInsets.all(3),
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(20),
@@ -342,10 +475,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                           children: [
                                             SvgPicture.asset(
                                                 AppAssets.starIcon),
-                                            SizedBox(
+                                            const SizedBox(
                                               width: 3,
                                             ),
-                                            AppText(
+                                            const AppText(
                                               text: '4.5',
                                               fontWeight: FontWeight.w200,
                                               fontSize: 11,
@@ -361,14 +494,14 @@ class _HomeScreenState extends State<HomeScreen> {
                             },
                           ),
                         ),
-                        SizedBox(height: 20),
-                        AppText(
+                        const SizedBox(height: 20),
+                        const AppText(
                           text: 'New Recipes',
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                           textColor: Colors.black,
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         SizedBox(
                             height: 130,
                             child: ListView.builder(
@@ -387,7 +520,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         right: 0,
                                         bottom: 0,
                                         child: Container(
-                                          padding: EdgeInsets.all(10),
+                                          padding: const EdgeInsets.all(10),
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(12),
@@ -402,7 +535,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
                                               SizedBox(
+                                                width: 150,
                                                 child: AppText(
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                   textAlign: TextAlign.center,
                                                   text: recipe.name ??
                                                       'Recipe Name',
@@ -418,7 +554,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 itemCount: 5,
                                                 itemSize: 12,
                                                 itemBuilder: (context, _) =>
-                                                    Icon(Icons.star,
+                                                    const Icon(Icons.star,
                                                         color: Colors.amber),
                                                 onRatingUpdate:
                                                     (double value) {},
@@ -439,24 +575,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               .personImage),
                                                     ),
                                                   ),
-                                                  SizedBox(width: 5),
-                                                  AppText(
-                                                    text: 'By  Unknown}',
+                                                  const SizedBox(width: 5),
+                                                  const AppText(
+                                                    text: 'By Unknown}',
                                                     textColor:
                                                         AppColors.blackColor,
                                                     fontSize: 11,
                                                     fontWeight: FontWeight.w400,
                                                   ),
-                                                  SizedBox(width: 50),
+                                                  const SizedBox(width: 50),
                                                   AppText(
-                                                    text:
-                                                        '${recipe.time ?? 'Unknown'}',
+                                                    text: recipe.time ??
+                                                        'Unknown',
                                                     textColor:
                                                         AppColors.blackColor,
                                                     fontSize: 11,
                                                     fontWeight: FontWeight.w400,
                                                   ),
-                                                  SizedBox(width: 5),
+                                                  const SizedBox(width: 5),
                                                   SvgPicture.asset(
                                                       AppAssets.timerIcon),
                                                 ],
@@ -478,7 +614,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             imageUrl: recipe.image!,
                                             errorWidget:
                                                 (context, url, error) =>
-                                                    Icon(Icons.error),
+                                                    const Icon(Icons.error),
                                           ),
                                         ),
                                       ),

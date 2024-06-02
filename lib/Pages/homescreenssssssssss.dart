@@ -355,116 +355,116 @@
 //                   );
 //                 }),
 //                 SizedBox(height: 20),
-//                 AnimatedSwitcher(
-//                   duration: Duration(milliseconds: 300),
-//                   child: _isSearchFocused
-//                       ? Column(
-//                           children: [
-//                             Container(
-//                               padding: EdgeInsets.symmetric(horizontal: 20),
-//                               height: 40,
-//                               child: Row(
-//                                 children: [
-//                                   Expanded(
-//                                     child: Text(
-//                                       'Recent Searches',
-//                                       style: TextStyle(
-//                                           fontWeight: FontWeight.bold),
-//                                     ),
+// AnimatedSwitcher(
+//   duration: Duration(milliseconds: 300),
+//   child: _isSearchFocused
+//       ? Column(
+//           children: [
+//             Container(
+//               padding: EdgeInsets.symmetric(horizontal: 20),
+//               height: 40,
+//               child: Row(
+//                 children: [
+//                   Expanded(
+//                     child: Text(
+//                       'Recent Searches',
+//                       style: TextStyle(
+//                           fontWeight: FontWeight.bold),
+//                     ),
+//                   ),
+//                   IconButton(
+//                     icon: Icon(Icons.clear),
+//                     onPressed: () {
+//                       setState(() {
+//                         _isSearchFocused = false;
+//                         _searchController.clear();
+//                       });
+//                     },
+//                   )
+//                 ],
+//               ),
+//             ),
+//             ListView.builder(
+//                 shrinkWrap: true,
+//                 itemCount: 2,
+//                 itemBuilder: (index, context) {
+//                   return RecentSearchContainer();
+//                 }),
+//           ],
+//         )
+//       : Obx(
+//           () => Container(
+//             padding: EdgeInsets.symmetric(horizontal: 10),
+//             height: 40,
+//             child: TabBar(
+//               // isScrollable: true,
+//               dividerColor: Colors.transparent,
+//               indicator: BoxDecoration(
+//                 borderRadius: BorderRadius.circular(50),
+//                 color: Colors.transparent,
+//               ),
+//               labelPadding: EdgeInsets.symmetric(horizontal: 0),
+//               onTap: (index) {
+//                 controller.changeTabIndex(index);
+//               },
+//               tabs: dishType.map<Widget>((type) {
+//                 return Tab(
+//                   child: Material(
+//                     color: Colors.transparent,
+//                     child: InkWell(
+//                       splashColor: Colors.transparent,
+//                       highlightColor: Colors.transparent,
+//                       onTap: () {
+//                         controller.changeTabIndex(
+//                             dishType.indexOf(type));
+//                       },
+//                       child: Container(
+//                         height: 35,
+//                         padding: const EdgeInsets.all(2),
+//                         width: isTabletScreen
+//                             ? MediaQuery.of(context).size.width
+//                             : 60,
+//                         decoration: BoxDecoration(
+//                           color: controller.selectedIndex ==
+//                                   dishType.indexOf(type)
+//                               ? AppColors.primaryColor
+//                               : Colors.white,
+//                           borderRadius:
+//                               BorderRadius.circular(10),
+//                         ),
+//                         child: Align(
+//                           alignment: Alignment.center,
+//                           child: Text(
+//                             type,
+//                             style: Theme.of(context)
+//                                 .textTheme
+//                                 .titleLarge!
+//                                 .merge(
+//                                   TextStyle(
+//                                     color: controller
+//                                                 .selectedIndex ==
+//                                             dishType
+//                                                 .indexOf(type)
+//                                         ? Colors.white
+//                                         : AppColors
+//                                             .primaryColor,
+//                                     fontWeight: FontWeight.w600,
+//                                     fontSize: isTabletScreen
+//                                         ? 20
+//                                         : 12,
 //                                   ),
-//                                   IconButton(
-//                                     icon: Icon(Icons.clear),
-//                                     onPressed: () {
-//                                       setState(() {
-//                                         _isSearchFocused = false;
-//                                         _searchController.clear();
-//                                       });
-//                                     },
-//                                   )
-//                                 ],
-//                               ),
-//                             ),
-//                             ListView.builder(
-//                                 shrinkWrap: true,
-//                                 itemCount: 2,
-//                                 itemBuilder: (index, context) {
-//                                   return RecentSearchContainer();
-//                                 }),
-//                           ],
-//                         )
-//                       : Obx(
-//                           () => Container(
-//                             padding: EdgeInsets.symmetric(horizontal: 10),
-//                             height: 40,
-//                             child: TabBar(
-//                               // isScrollable: true,
-//                               dividerColor: Colors.transparent,
-//                               indicator: BoxDecoration(
-//                                 borderRadius: BorderRadius.circular(50),
-//                                 color: Colors.transparent,
-//                               ),
-//                               labelPadding: EdgeInsets.symmetric(horizontal: 0),
-//                               onTap: (index) {
-//                                 controller.changeTabIndex(index);
-//                               },
-//                               tabs: dishType.map<Widget>((type) {
-//                                 return Tab(
-//                                   child: Material(
-//                                     color: Colors.transparent,
-//                                     child: InkWell(
-//                                       splashColor: Colors.transparent,
-//                                       highlightColor: Colors.transparent,
-//                                       onTap: () {
-//                                         controller.changeTabIndex(
-//                                             dishType.indexOf(type));
-//                                       },
-//                                       child: Container(
-//                                         height: 35,
-//                                         padding: const EdgeInsets.all(2),
-//                                         width: isTabletScreen
-//                                             ? MediaQuery.of(context).size.width
-//                                             : 60,
-//                                         decoration: BoxDecoration(
-//                                           color: controller.selectedIndex ==
-//                                                   dishType.indexOf(type)
-//                                               ? AppColors.primaryColor
-//                                               : Colors.white,
-//                                           borderRadius:
-//                                               BorderRadius.circular(10),
-//                                         ),
-//                                         child: Align(
-//                                           alignment: Alignment.center,
-//                                           child: Text(
-//                                             type,
-//                                             style: Theme.of(context)
-//                                                 .textTheme
-//                                                 .titleLarge!
-//                                                 .merge(
-//                                                   TextStyle(
-//                                                     color: controller
-//                                                                 .selectedIndex ==
-//                                                             dishType
-//                                                                 .indexOf(type)
-//                                                         ? Colors.white
-//                                                         : AppColors
-//                                                             .primaryColor,
-//                                                     fontWeight: FontWeight.w600,
-//                                                     fontSize: isTabletScreen
-//                                                         ? 20
-//                                                         : 12,
-//                                                   ),
-//                                                 ),
-//                                           ),
-//                                         ),
-//                                       ),
-//                                     ),
-//                                   ),
-//                                 );
-//                               }).toList(),
-//                             ),
+//                                 ),
 //                           ),
 //                         ),
-//                 ),
+//                       ),
+//                     ),
+//                   ),
+//                 );
+//               }).toList(),
+//             ),
+//           ),
+//         ),
+// ),
 //                 StreamBuilder<QuerySnapshot>(
 //                   stream: FirebaseFirestore.instance
 //                       .collection('recipes')
