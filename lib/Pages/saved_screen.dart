@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:recipe_food/AppAssets/app_assets.dart';
 import 'package:recipe_food/CommenWidget/app_text.dart';
 import 'package:recipe_food/Helpers/colors.dart';
 import 'package:recipe_food/routes/route_name.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'item_detail_screen.dart';
 
 class SavedScreen extends StatefulWidget {
   const SavedScreen({Key? key}) : super(key: key);
@@ -28,7 +30,7 @@ class _SavedScreenState extends State<SavedScreen> {
   Future<void> _initPrefs() async {
     try {
       _prefs = await SharedPreferences.getInstance();
-      _savedRecipes = _prefs?.getStringList('bookmarks') ?? [];
+      _savedRecipes = _prefs?.getStringList('saved recipes') ?? [];
     } catch (e) {
       print('Error initializing SharedPreferences: $e');
     } finally {
@@ -83,18 +85,22 @@ class _SavedScreenState extends State<SavedScreen> {
               ),
             )
           : ListView.builder(
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
               itemCount: _savedRecipes.length,
               itemBuilder: (context, index) {
                 final String recipeName = _savedRecipes[index];
+
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: GestureDetector(
-                    onTap: () {
-                      Get.toNamed(RouteName.itemDetailScreen,
-                          arguments: {'recipeName': recipeName});
-                    },
+                    //  onTap: () {
+                    //                   Navigator.push(
+                    //                     context,
+                    //                     MaterialPageRoute(
+                    //                       builder: (context) =>
+                    //                           ItemDetailScreen(recipe: recipe),
+                    //                     ),
+                    //                   );
+                    //                 },
                     child: Container(
                       margin: EdgeInsets.symmetric(vertical: 5),
                       width: containerWidth,

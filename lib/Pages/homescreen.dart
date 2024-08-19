@@ -174,179 +174,347 @@ class _HomeScreenState extends State<HomeScreen> {
         resizeToAvoidBottomInset: false,
         backgroundColor: Colors.white,
         body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 7),
-                  child: ListTile(
-                    title: AppText(
-                      text: 'Welcome, ${user.name}',
-                      textColor: Colors.black,
-                      fontSize: 20,
-                    ),
-                    subtitle: const AppText(
-                      text: 'What are you cooking today?',
-                      textColor: Colors.black,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w400,
-                    ),
-                    trailing: Container(
-                      width: 60,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        color: AppColors.orangeColor,
-                        borderRadius: BorderRadius.circular(10),
+          child: SingleChildScrollView(
+            physics: BouncingScrollPhysics(),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 7),
+                    child: ListTile(
+                      title: AppText(
+                        text: 'Welcome, ${user.name}',
+                        textColor: Colors.black,
+                        fontSize: 20,
                       ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.network(
-                          user.imageUrl ?? AppAssets.profileIcon,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Image.asset(
-                              AppAssets.profileIcon,
-                              fit: BoxFit.cover,
-                            );
-                          },
+                      subtitle: const AppText(
+                        text: 'What are you cooking today?',
+                        textColor: Colors.black,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      trailing: Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: AppColors.orangeColor,
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _isSearchFocused = true;
-                            });
-                          },
-                          child: Container(
-                            height: 45,
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade100,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.search,
-                                  color: Colors.grey,
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: TextFormField(
-                                    cursorColor: Colors.grey,
-                                    controller: _searchController,
-                                    decoration: const InputDecoration(
-                                      hintText: 'Search',
-                                      border: InputBorder.none,
-                                    ),
-                                    onTap: () {
-                                      setState(() {
-                                        _isSearchFocused = true;
-                                      });
-                                    },
-                                    onChanged: (value) {
-                                      _onSearch(value);
-                                    },
-                                    onSaved: (value) {
-                                      _onSearch(value!);
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.network(
+                            user.imageUrl ?? AppAssets.profileIcon,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Image.asset(
+                                AppAssets.profileIcon,
+                                fit: BoxFit.cover,
+                              );
+                            },
                           ),
                         ),
                       ),
-                      const SizedBox(
-                        width: 20,
-                      ),
-                      GestureDetector(
-                        onTap: _listen,
-                        child: Container(
-                            height: 45,
-                            width: 45,
-                            decoration: BoxDecoration(
-                              color: AppColors.primaryColor,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Icon(
-                                _isListening ? Icons.mic : Icons.mic_none)),
-                      )
-                    ],
+                    ),
                   ),
-                ),
-                if (_isSearchFocused)
-                  Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        height: 40,
-                        child: Row(
-                          children: [
-                            const Expanded(
-                              child: Text(
-                                'Recent Searches',
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _isSearchFocused = true;
+                              });
+                            },
+                            child: Container(
+                              height: 45,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.search,
+                                    color: Colors.grey,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: TextFormField(
+                                      cursorColor: Colors.grey,
+                                      controller: _searchController,
+                                      decoration: const InputDecoration(
+                                        hintText: 'Search',
+                                        border: InputBorder.none,
+                                      ),
+                                      onTap: () {
+                                        setState(() {
+                                          _isSearchFocused = true;
+                                        });
+                                      },
+                                      onChanged: (value) {
+                                        _onSearch(value);
+                                      },
+                                      onSaved: (value) {
+                                        _onSearch(value!);
+                                      },
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.clear),
-                              onPressed: () {
-                                setState(() {
-                                  _isSearchFocused = false;
-                                  _searchController.clear();
-                                  _onSearch('');
-                                });
-                              },
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                      ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: _recentSearches.length,
-                        itemBuilder: (context, index) {
-                          return RecentSearchContainer(
-                            searchQuery: _recentSearches[index],
-                            onSearchSelected: (query) {
-                              _searchController.text = query;
-                              _onSearch(query);
-                            },
-                          );
-                        },
-                      ),
-                    ],
+                        const SizedBox(
+                          width: 20,
+                        ),
+                        GestureDetector(
+                          onTap: _listen,
+                          child: Container(
+                              height: 45,
+                              width: 45,
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryColor,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Icon(
+                                  _isListening ? Icons.mic : Icons.mic_none)),
+                        )
+                      ],
+                    ),
                   ),
-                const SizedBox(height: 30),
-                Obx(() {
-                  return Padding(
+                  if (_isSearchFocused)
+                    Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          height: 40,
+                          child: Row(
+                            children: [
+                              const Expanded(
+                                child: Text(
+                                  'Recent Searches',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  setState(() {
+                                    _isSearchFocused = false;
+                                    _searchController.clear();
+                                    _onSearch('');
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          height: 150,
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: _recentSearches.length,
+                            itemBuilder: (context, index) {
+                              return RecentSearchContainer(
+                                searchQuery: _recentSearches[index],
+                                onSearchSelected: (query) {
+                                  _searchController.text = query;
+                                  _onSearch(query);
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  const SizedBox(height: 30),
+                  Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        if (_searchController.text.isNotEmpty)
+                          SizedBox(
+                            height: 231,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: controller.filteredRecipes.length,
+                              itemBuilder: (context, index) {
+                                final recipe =
+                                    controller.filteredRecipes[index];
+                                return Padding(
+                                  padding: const EdgeInsets.all(10),
+                                  child: InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              ItemDetailScreen(recipe: recipe),
+                                        ),
+                                      );
+                                    },
+                                    child: Stack(children: [
+                                      Container(
+                                        color: Colors.white,
+                                        width: 150,
+                                        height: 231,
+                                      ),
+                                      Positioned(
+                                        right: 0,
+                                        bottom: 0,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(10),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            color: Colors.grey.shade200,
+                                          ),
+                                          height: 176,
+                                          width: 150,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              Center(
+                                                  child: AppText(
+                                                textAlign: TextAlign.center,
+                                                text: recipe.name ??
+                                                    'Recipe Name',
+                                                fontSize: 16,
+                                                textColor: Colors.black,
+                                              )),
+                                              const SizedBox(
+                                                height: 5,
+                                              ),
+                                              const AppText(
+                                                text: 'Time',
+                                                textColor: AppColors.blackColor,
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  AppText(
+                                                      text: recipe.time ??
+                                                          'Recipe Name',
+                                                      textColor:
+                                                          AppColors.blackColor,
+                                                      fontSize: 11),
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      _saveRecipeToBookmarks(
+                                                          recipe.name!);
+                                                    },
+                                                    child: Container(
+                                                      width: 20,
+                                                      height: 20,
+                                                      decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(13),
+                                                        color: Colors.white,
+                                                      ),
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(2.0),
+                                                        child: SvgPicture.asset(
+                                                            AppAssets
+                                                                .bookMarkIcon),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        right: 30,
+                                        top: 0,
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(100),
+                                          child: CachedNetworkImage(
+                                            width: 100,
+                                            height: 100,
+                                            fit: BoxFit.cover,
+                                            imageUrl: recipe.image!,
+                                            errorWidget:
+                                                (context, url, error) =>
+                                                    const Icon(Icons.error),
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: 30,
+                                        right: 0,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(3),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                            color: AppColors.lightOrangeColor,
+                                          ),
+                                          height: 23,
+                                          width: 45,
+                                          child: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              SvgPicture.asset(
+                                                  AppAssets.starIcon),
+                                              const SizedBox(
+                                                width: 3,
+                                              ),
+                                              const AppText(
+                                                text: '4.5',
+                                                fontWeight: FontWeight.w200,
+                                                fontSize: 11,
+                                                textColor: Colors.black,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ]),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        const AppText(
+                          text: 'All Recipes',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          textColor: Colors.black,
+                        ),
                         const SizedBox(height: 10),
                         SizedBox(
                           height: 231,
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
-                            itemCount: controller.filteredRecipes.length,
+                            itemCount: controller.recipes.length,
                             itemBuilder: (context, index) {
-                              final recipe = controller.filteredRecipes[index];
+                              final recipe = controller.recipes[index];
                               return Padding(
                                 padding: const EdgeInsets.all(10),
                                 child: InkWell(
@@ -623,9 +791,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 }))
                       ],
                     ),
-                  );
-                }),
-              ],
+                  )
+                ],
+              ),
             ),
           ),
         ),

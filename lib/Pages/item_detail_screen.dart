@@ -8,6 +8,7 @@ import 'package:recipe_food/CommenWidget/app_text.dart';
 import 'package:recipe_food/CommenWidget/custom_button.dart';
 import 'package:recipe_food/model/recepiemodel.dart';
 import 'package:recipe_food/routes/route_name.dart';
+import 'package:share_plus/share_plus.dart';
 import '../Controllers/item_detail_screen_controller.dart';
 import '../Helpers/colors.dart';
 
@@ -105,20 +106,20 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                                 ],
                               ),
                             ),
-                            SizedBox(height: containerHeight * 0.35),
+                            SizedBox(height: containerHeight * 0.25),
                             SizedBox(
-                              width: 150,
+                              width: 200,
                               child: AppText(
                                 overflow: TextOverflow.clip,
                                 text: '${widget.recipe.name ?? 'Recipe name'}',
-                                fontSize: 14,
+                                fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             Row(
                               children: [
                                 AppText(
-                                  text: 'By....',
+                                  text: 'By Admin',
                                   fontSize: 8,
                                   fontWeight: FontWeight.w400,
                                 ),
@@ -175,59 +176,58 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                     ),
                   ],
                 ),
-                SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  children: [
-                    Container(
-                      height: 40,
-                      width: 40,
-                      decoration: BoxDecoration(shape: BoxShape.circle),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: Image.asset(
-                          AppAssets.profilePhoto,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        AppText(
-                          text: 'Laura wilson',
-                          fontSize: 14,
-                          textColor: Colors.black,
-                        ),
-                        Row(
-                          children: [
-                            SvgPicture.asset(AppAssets.locationIcon),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            AppText(
-                              text: 'Lagos, Nigeria',
-                              fontSize: 11,
-                              textColor: AppColors.greyColor,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    Spacer(),
-                    CustomButton(
-                      label: 'Follow',
-                      width: 85,
-                      height: 37,
-                      fontSize: 11,
-                    ),
-                  ],
-                ),
+
+                // Row(
+                //   children: [
+                //     Container(
+                //       height: 40,
+                //       width: 40,
+                //       decoration: BoxDecoration(shape: BoxShape.circle),
+                //       child: ClipRRect(
+                //         borderRadius: BorderRadius.circular(20),
+                //         child: Image.asset(
+                //           AppAssets.profilePhoto,
+                //           fit: BoxFit.cover,
+                //         ),
+                //       ),
+                //     ),
+                //     SizedBox(
+                //       width: 10,
+                //     ),
+                //     Column(
+                //       crossAxisAlignment: CrossAxisAlignment.start,
+                //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //       children: [
+                //         AppText(
+                //           text: 'Laura wilson',
+                //           fontSize: 14,
+                //           textColor: Colors.black,
+                //         ),
+                //         Row(
+                //           children: [
+                //             SvgPicture.asset(AppAssets.locationIcon),
+                //             SizedBox(
+                //               width: 5,
+                //             ),
+                //             AppText(
+                //               text: 'Lagos, Nigeria',
+                //               fontSize: 11,
+                //               textColor: AppColors.greyColor,
+                //             ),
+                //           ],
+                //         ),
+                //       ],
+                //     ),
+                //     Spacer(),
+                //     CustomButton(
+                //       label: 'Follow',
+                //       width: 85,
+                //       height: 37,
+                //       fontSize: 11,
+                //     ),
+                //   ],
+                // ),
+
                 SizedBox(
                   height: 20,
                 ),
@@ -456,7 +456,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
 
   void _showPopupMenu(BuildContext context) {
     final RenderBox overlay =
-        Overlay.of(context)!.context.findRenderObject() as RenderBox;
+        Overlay.of(context).context.findRenderObject() as RenderBox;
     final double paddingFromTop = kToolbarHeight + 20;
     final double paddingFromRight = kToolbarHeight + 70;
     final Offset offset = Offset(
@@ -473,19 +473,21 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
       ),
       items: [
         PopupMenuItem(
-          child: Row(
-            children: [
-              SvgPicture.asset(AppAssets.shareIcon),
-              SizedBox(
-                width: 10,
-              ),
-              Text('Share'),
-            ],
-          ),
-          onTap: () {
-            _showShareDialog(context);
-          },
-        ),
+            child: Row(
+              children: [
+                SvgPicture.asset(AppAssets.shareIcon),
+                SizedBox(
+                  width: 10,
+                ),
+                Text('Share'),
+              ],
+            ),
+            onTap: () async {
+              await Share.share(
+                'Check out this recipe: ${widget.recipe.name} - ${widget.recipe.procedure} - ${widget.recipe.ingredients}',
+                subject: 'Look what I made!',
+              );
+            }),
 
         PopupMenuItem(
           child: Row(
@@ -534,13 +536,13 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
     );
   }
 
-  void _showShareDialog(BuildContext context) {
+  void _showShareDialog(BuildContext context, Recipe recipe) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: Colors.white,
         title: AppText(
-          text: 'Recipe Link ',
+          text: 'Recipe Data ',
           textColor: Colors.black,
           fontSize: 20,
         ),
@@ -570,20 +572,29 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                       width: 7,
                     ),
                     AppText(
-                      text: 'app.Recipe.co/jollof_rice',
+                      text: "",
                       textColor: Colors.black,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     Spacer(),
-                    Container(
-                      height: 43,
-                      width: 50,
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryColor,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Center(
-                        child: AppText(
-                          text: 'Copy',
+                    GestureDetector(
+                      onTap: () {
+                        Share.share(
+                          'Check out this recipe: ${recipe.name} - ${recipe.procedure} - ${recipe.ingredients}',
+                          subject: 'Look what I made!',
+                        );
+                      },
+                      child: Container(
+                        height: 43,
+                        width: 50,
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryColor,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: AppText(
+                            text: 'Copy',
+                          ),
                         ),
                       ),
                     ),
