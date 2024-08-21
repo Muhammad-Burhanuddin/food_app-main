@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +10,7 @@ import 'package:recipe_food/AppAssets/app_assets.dart';
 import 'package:recipe_food/CommenWidget/app_text.dart';
 import 'package:recipe_food/Helpers/colors.dart';
 import 'package:recipe_food/Pages/recentsearch.dart';
+import 'package:recipe_food/model/recepiemodel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:translator/translator.dart';
@@ -92,27 +95,41 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _saveRecipeToBookmarks(String recipeName) {
-    List<String> bookmarks = _prefs?.getStringList('saved recipes') ?? [];
-    if (bookmarks.contains(recipeName)) {
-      bookmarks.remove(recipeName);
+  void _saveRecipeToBookmarks(String recipeName, String recipeImage) {
+    List<Map<String, String>> bookmarks = _prefs
+            ?.getStringList('savedRecipes')
+            ?.map((e) => Map<String, String>.from(json.decode(e)))
+            .toList() ??
+        [];
+
+    final recipeIndex =
+        bookmarks.indexWhere((recipe) => recipe['name'] == recipeName);
+
+    if (recipeIndex != -1) {
+      bookmarks.removeAt(recipeIndex);
       print('$recipeName removed from saved recipes');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('$recipeName removed from saved recipes')),
       );
     } else {
-      bookmarks.add(recipeName);
+      bookmarks.add({'name': recipeName, 'image': recipeImage});
       print('$recipeName added to saved recipes');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('$recipeName added to saved recipes')),
       );
     }
-    _prefs?.setStringList('saved recipes', bookmarks);
+
+    _prefs?.setStringList(
+        'savedRecipes', bookmarks.map((e) => json.encode(e)).toList());
   }
 
   bool _isRecipeBookmarked(String recipeName) {
-    List<String> bookmarks = _prefs?.getStringList('bookmarks') ?? [];
-    return bookmarks.contains(recipeName);
+    List<Map<String, String>> bookmarks = _prefs
+            ?.getStringList('savedRecipes')
+            ?.map((e) => Map<String, String>.from(json.decode(e)))
+            .toList() ??
+        [];
+    return bookmarks.any((recipe) => recipe['name'] == recipeName);
   }
 
   void _initializeLangDetect() async {
@@ -155,12 +172,37 @@ class _HomeScreenState extends State<HomeScreen> {
     return text;
   }
 
+  // void _searchRecipes(String query) {
+  //   final filteredRecipes = controller.recipes.where((recipe) {
+  //     return recipe.name!.toLowerCase().contains(query.toLowerCase()) ||
+  //         recipe.ingredients!.any((ingredient) =>
+  //             ingredient.name!.toLowerCase().contains(query.toLowerCase()));
+  //   }).toList();
+  //   controller.filteredRecipes.value = filteredRecipes;
+  // }
+
   void _searchRecipes(String query) {
+    // Get the list of selected ingredients
+    final selected = controller.ingredients
+        .where((ingredient) => controller
+            .selectedIngredients[controller.ingredients.indexOf(ingredient)]
+            .value)
+        .toList();
+
+    // Filter recipes based on the search query and selected ingredients
     final filteredRecipes = controller.recipes.where((recipe) {
-      return recipe.name!.toLowerCase().contains(query.toLowerCase()) ||
-          recipe.ingredients!.any((ingredient) =>
-              ingredient.name!.toLowerCase().contains(query.toLowerCase()));
+      final matchesQuery =
+          recipe.name!.toLowerCase().contains(query.toLowerCase()) ||
+              recipe.ingredients!.any((ingredient) =>
+                  ingredient.name!.toLowerCase().contains(query.toLowerCase()));
+
+      final matchesIngredients = selected.isEmpty ||
+          recipe.ingredients!
+              .any((ingredient) => selected.contains(ingredient.name));
+
+      return matchesQuery && matchesIngredients;
     }).toList();
+
     controller.filteredRecipes.value = filteredRecipes;
   }
 
@@ -420,11 +462,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   GestureDetector(
                                                     onTap: () {
                                                       _saveRecipeToBookmarks(
-                                                          recipe.name!);
+                                                        recipe.name!,
+                                                        // Add the missing argument here
+                                                        recipe.image!,
+                                                      );
                                                     },
                                                     child: Container(
-                                                      width: 20,
-                                                      height: 20,
+                                                      width: 30,
+                                                      height: 30,
                                                       decoration: BoxDecoration(
                                                         borderRadius:
                                                             BorderRadius
@@ -434,7 +479,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       child: Padding(
                                                         padding:
                                                             const EdgeInsets
-                                                                .all(2.0),
+                                                                .all(5.0),
                                                         child: SvgPicture.asset(
                                                             AppAssets
                                                                 .bookMarkIcon),
@@ -582,11 +627,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 GestureDetector(
                                                   onTap: () {
                                                     _saveRecipeToBookmarks(
-                                                        recipe.name!);
+                                                      recipe.name!,
+                                                      recipe.image!,
+                                                    );
                                                   },
                                                   child: Container(
-                                                    width: 20,
-                                                    height: 20,
+                                                    width: 30,
+                                                    height: 30,
                                                     decoration: BoxDecoration(
                                                       borderRadius:
                                                           BorderRadius.circular(
@@ -596,7 +643,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     child: Padding(
                                                       padding:
                                                           const EdgeInsets.all(
-                                                              2.0),
+                                                              5.0),
                                                       child: SvgPicture.asset(
                                                           AppAssets
                                                               .bookMarkIcon),

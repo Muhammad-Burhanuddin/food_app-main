@@ -18,6 +18,18 @@ class Ingredient {
       image: data['image'] as String?,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'price': price,
+        'image': image,
+      };
+
+  static Ingredient fromJson(Map<String, dynamic> json) => Ingredient(
+        name: json['name'],
+        price: json['price'],
+        image: json['image'],
+      );
 }
 
 class Recipe {
@@ -47,4 +59,22 @@ class Recipe {
       time: data['time'] as String?,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'procedure': procedure,
+        'ingredients': ingredients?.map((i) => i.toJson()).toList(),
+        'image': image,
+        'time': time,
+      };
+
+  static Recipe fromJson(Map<String, dynamic> json) => Recipe(
+        name: json['name'],
+        procedure: json['procedure'],
+        ingredients: (json['ingredients'] as List)
+            .map((i) => Ingredient.fromJson(i))
+            .toList(),
+        image: json['image'],
+        time: json['time'],
+      );
 }

@@ -1,12 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
 import 'package:recipe_food/AppAssets/app_assets.dart';
 import 'package:recipe_food/CommenWidget/app_text.dart';
 import 'package:recipe_food/Helpers/colors.dart';
 import 'package:recipe_food/routes/route_name.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../model/recepiemodel.dart';
 import 'item_detail_screen.dart';
 
 class SavedScreen extends StatefulWidget {
@@ -19,7 +21,7 @@ class SavedScreen extends StatefulWidget {
 class _SavedScreenState extends State<SavedScreen> {
   SharedPreferences? _prefs;
   bool _isLoading = true;
-  List<String> _savedRecipes = [];
+  List<Map<String, String>> _savedRecipes = [];
 
   @override
   void initState() {
@@ -30,7 +32,17 @@ class _SavedScreenState extends State<SavedScreen> {
   Future<void> _initPrefs() async {
     try {
       _prefs = await SharedPreferences.getInstance();
-      _savedRecipes = _prefs?.getStringList('saved recipes') ?? [];
+
+      // Load saved recipes from SharedPreferences
+      List<String>? savedRecipesJson = _prefs?.getStringList('savedRecipes');
+      if (savedRecipesJson != null) {
+        _savedRecipes = savedRecipesJson
+            .map((jsonString) =>
+                Map<String, String>.from(json.decode(jsonString)))
+            .toList();
+      } else {
+        _savedRecipes = [];
+      }
     } catch (e) {
       print('Error initializing SharedPreferences: $e');
     } finally {
@@ -87,20 +99,26 @@ class _SavedScreenState extends State<SavedScreen> {
           : ListView.builder(
               itemCount: _savedRecipes.length,
               itemBuilder: (context, index) {
-                final String recipeName = _savedRecipes[index];
+                final recipe = _savedRecipes[index];
+                final recipeName = recipe['name'] ?? '';
+                final recipeImage = recipe['image'] ?? '';
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: GestureDetector(
-                    //  onTap: () {
-                    //                   Navigator.push(
-                    //                     context,
-                    //                     MaterialPageRoute(
-                    //                       builder: (context) =>
-                    //                           ItemDetailScreen(recipe: recipe),
-                    //                     ),
-                    //                   );
-                    //                 },
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ItemDetailScreen(
+                              recipe: Recipe(
+                            name: recipeName,
+                            image: recipeImage,
+                            // Add other properties as needed
+                          )),
+                        ),
+                      );
+                    },
                     child: Container(
                       margin: EdgeInsets.symmetric(vertical: 5),
                       width: containerWidth,
@@ -116,8 +134,8 @@ class _SavedScreenState extends State<SavedScreen> {
                             opacity: 0.8,
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(10),
-                              child: Image.asset(
-                                AppAssets.saveItem,
+                              child: Image.network(
+                                recipeImage,
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -177,17 +195,21 @@ class _SavedScreenState extends State<SavedScreen> {
                                       fontWeight: FontWeight.w400,
                                     ),
                                     SizedBox(width: containerWidth * 0.02),
-                                    Container(
-                                      width: 20,
-                                      height: 20,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(13),
-                                        color: Colors.white,
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(2.0),
-                                        child: SvgPicture.asset(
-                                            AppAssets.bookMarkIcon),
+                                    GestureDetector(
+                                      onTap: () {},
+                                      child: Container(
+                                        width: 30,
+                                        height: 30,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(13),
+                                          color: Colors.white,
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(5.0),
+                                          child: SvgPicture.asset(
+                                              AppAssets.bookMarkIcon),
+                                        ),
                                       ),
                                     ),
                                   ],

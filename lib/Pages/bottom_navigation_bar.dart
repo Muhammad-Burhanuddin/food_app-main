@@ -21,10 +21,10 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
   int _bottomNavIndex = 0;
 
   final List<Widget> _screens = [
-    HomeScreen(),
-    SavedScreen(),
-    NotificationsScreen(),
-    ProfileScreen(),
+    const HomeScreen(),
+    const SavedScreen(),
+    const NotificationsScreen(),
+    const ProfileScreen(),
   ];
 
   @override
@@ -34,7 +34,7 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
       floatingActionButton: Container(
         width: 56.0,
         height: 56.0,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           shape: BoxShape.circle,
           color: AppColors.primaryColor,
         ),
@@ -42,19 +42,19 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
           highlightElevation: 0.0,
           splashColor: Colors.transparent,
           onPressed: () {
-            controller.showForgetPasswordBottomSheet(context);
+            controller.showIngredientFilter(context);
           },
-          child: Icon(Icons.add, color: Colors.white),
           backgroundColor:
               Colors.transparent, // Make the background color transparent
-          elevation: 0, // Remove shadow
+          elevation: 0,
+          child: const Icon(Icons.add, color: Colors.white), // Remove shadow
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: AnimatedBottomNavigationBar(
         activeColor: AppColors.primaryColor,
         inactiveColor: AppColors.blackColor,
-        icons: [
+        icons: const [
           Icons.home_outlined,
           Icons.save_alt_sharp,
           Icons.notifications_outlined,

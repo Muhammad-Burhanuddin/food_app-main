@@ -98,7 +98,7 @@ class HomeScreenController extends GetxController {
   }
 
   // Show filter bottom sheet
-  void showForgetPasswordBottomSheet(BuildContext context) {
+  void showIngredientFilter(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -106,29 +106,29 @@ class HomeScreenController extends GetxController {
         return Padding(
           padding: MediaQuery.of(context).viewInsets,
           child: Container(
-            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 30),
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
             height: 500,
             width: double.infinity,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(
+                const Center(
                     child: AppText(
                   text: 'Filter Search',
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   textColor: Colors.black,
                 )),
-                SizedBox(height: 10),
-                AppText(
+                const SizedBox(height: 10),
+                const AppText(
                   textAlign: TextAlign.left,
                   text: 'Ingredients',
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   textColor: Colors.black,
                 ),
-                SizedBox(height: 5),
+                const SizedBox(height: 5),
                 Obx(() {
                   return Wrap(
                     spacing: 10,
@@ -157,8 +157,8 @@ class HomeScreenController extends GetxController {
                     ),
                   );
                 }),
-                SizedBox(height: 10),
-                Spacer(),
+                const SizedBox(height: 10),
+                const Spacer(),
                 Center(
                   child: CustomButton(
                     label: 'Filter',
@@ -170,7 +170,7 @@ class HomeScreenController extends GetxController {
                     },
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
               ],
             ),
           ),

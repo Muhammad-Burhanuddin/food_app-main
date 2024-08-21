@@ -42,7 +42,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                 onTap: () {
                   _showPopupMenu(context);
                 },
-                child: Icon(
+                child: const Icon(
                   Icons.more_horiz_rounded,
                 ),
               ),
@@ -55,7 +55,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
             child: Column(
               children: [
                 Container(
-                  margin: EdgeInsets.symmetric(vertical: 5),
+                  margin: const EdgeInsets.symmetric(vertical: 5),
                   width: containerWidth,
                   height: containerHeight,
                   decoration: BoxDecoration(
@@ -73,7 +73,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                               fit: BoxFit.cover,
                               imageUrl: '${widget.recipe.image}',
                               errorWidget: (context, url, error) =>
-                                  Icon(Icons.error),
+                                  const Icon(Icons.error),
                             ),
                           )),
                       Positioned(
@@ -83,7 +83,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
-                              padding: EdgeInsets.all(3),
+                              padding: const EdgeInsets.all(3),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(20),
                                 color: AppColors.lightOrangeColor,
@@ -94,10 +94,10 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   SvgPicture.asset(AppAssets.starIcon),
-                                  SizedBox(
+                                  const SizedBox(
                                     width: 3,
                                   ),
-                                  AppText(
+                                  const AppText(
                                     text: '4.5',
                                     fontWeight: FontWeight.w200,
                                     fontSize: 11,
@@ -118,7 +118,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                             ),
                             Row(
                               children: [
-                                AppText(
+                                const AppText(
                                   text: 'By Admin',
                                   fontSize: 8,
                                   fontWeight: FontWeight.w400,
@@ -156,7 +156,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                     ],
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 Row(
@@ -168,7 +168,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                       textColor: Colors.black,
                       fontSize: 14,
                     ),
-                    AppText(
+                    const AppText(
                       text: '(1k Reviews)',
                       textColor: AppColors.greyColor,
                       fontWeight: FontWeight.w400,
@@ -228,7 +228,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                 //   ],
                 // ),
 
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
                 Obx(() => Container(
@@ -241,7 +241,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                           borderRadius: BorderRadius.circular(50),
                           color: Colors.transparent,
                         ),
-                        labelPadding: EdgeInsets.symmetric(horizontal: 0),
+                        labelPadding: const EdgeInsets.symmetric(horizontal: 0),
                         onTap: (index) {
                           controller.changeTabIndex(index);
                         },
@@ -293,7 +293,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                         }).toList(),
                       ),
                     )),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 Expanded(
@@ -305,13 +305,13 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                             Row(
                               children: [
                                 SvgPicture.asset(AppAssets.serveIcon),
-                                SizedBox(width: 5),
-                                AppText(
+                                const SizedBox(width: 5),
+                                const AppText(
                                   text: '1 serve',
                                   fontSize: 11,
                                   textColor: AppColors.greyColor,
                                 ),
-                                Spacer(),
+                                const Spacer(),
                                 AppText(
                                   text:
                                       '${widget.recipe.ingredients?.length ?? 0} Items',
@@ -320,7 +320,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 20),
+                            const SizedBox(height: 20),
                             Expanded(
                               child: ListView.builder(
                                 itemCount:
@@ -331,8 +331,8 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                                   final ingredient =
                                       widget.recipe.ingredients?[index];
                                   return Container(
-                                    padding: EdgeInsets.all(10),
-                                    margin: EdgeInsets.only(bottom: 10),
+                                    padding: const EdgeInsets.all(10),
+                                    margin: const EdgeInsets.only(bottom: 10),
                                     width: 315,
                                     height: 70,
                                     decoration: BoxDecoration(
@@ -349,10 +349,10 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                                             imageUrl: ingredient?.image ?? '',
                                             errorWidget:
                                                 (context, url, error) =>
-                                                    Icon(Icons.error),
+                                                    const Icon(Icons.error),
                                           ),
                                         ),
-                                        SizedBox(width: 20),
+                                        const SizedBox(width: 20),
                                         SizedBox(
                                           width: 150,
                                           child: AppText(
@@ -362,7 +362,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                                             textColor: Colors.black,
                                           ),
                                         ),
-                                        Spacer(),
+                                        const Spacer(),
                                         AppText(
                                           text: ingredient?.price ?? '',
                                           fontSize: 16,
@@ -382,15 +382,15 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                             Row(
                               children: [
                                 SvgPicture.asset(AppAssets.serveIcon),
-                                SizedBox(
+                                const SizedBox(
                                   width: 5,
                                 ),
-                                AppText(
+                                const AppText(
                                   text: '1 serve',
                                   fontSize: 11,
                                   textColor: AppColors.greyColor,
                                 ),
-                                Spacer(),
+                                const Spacer(),
                                 AppText(
                                   text:
                                       '${widget.recipe.ingredients?.length ?? 0} Items',
@@ -399,7 +399,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                                 ),
                               ],
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 20,
                             ),
                             Expanded(
@@ -408,9 +408,9 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                                 shrinkWrap: true,
                                 children: [
                                   Container(
-                                    padding: EdgeInsets.symmetric(
+                                    padding: const EdgeInsets.symmetric(
                                         horizontal: 15, vertical: 15),
-                                    margin: EdgeInsets.only(bottom: 10),
+                                    margin: const EdgeInsets.only(bottom: 10),
                                     width: 315,
                                     decoration: BoxDecoration(
                                       color: Colors.grey.shade200,
@@ -420,12 +420,12 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        AppText(
+                                        const AppText(
                                           text: 'Process',
                                           fontSize: 16,
                                           textColor: Colors.black,
                                         ),
-                                        SizedBox(
+                                        const SizedBox(
                                           height: 5,
                                         ),
                                         AppText(
@@ -476,10 +476,10 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
             child: Row(
               children: [
                 SvgPicture.asset(AppAssets.shareIcon),
-                SizedBox(
+                const SizedBox(
                   width: 10,
                 ),
-                Text('Share'),
+                const Text('Share'),
               ],
             ),
             onTap: () async {
@@ -493,10 +493,10 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
           child: Row(
             children: [
               SvgPicture.asset(AppAssets.rateRecipeIcon),
-              SizedBox(
+              const SizedBox(
                 width: 10,
               ),
-              Text('Rate Recipe'),
+              const Text('Rate Recipe'),
             ],
           ),
           onTap: () {
@@ -507,10 +507,10 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
           child: Row(
             children: [
               SvgPicture.asset(AppAssets.messageIcon),
-              SizedBox(
+              const SizedBox(
                 width: 10,
               ),
-              Text('Review'),
+              const Text('Review'),
             ],
           ),
           onTap: () {
@@ -521,10 +521,10 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
           child: Row(
             children: [
               SvgPicture.asset(AppAssets.unsavedIcon),
-              SizedBox(
+              const SizedBox(
                 width: 10,
               ),
-              Text('Unsave'),
+              const Text('Unsave'),
             ],
           ),
           onTap: () {
@@ -541,7 +541,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: Colors.white,
-        title: AppText(
+        title: const AppText(
           text: 'Recipe Data ',
           textColor: Colors.black,
           fontSize: 20,
@@ -550,14 +550,14 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AppText(
+            const AppText(
               text:
                   'Copy recipe link and share your recipe link with friends and family.',
               fontWeight: FontWeight.w400,
               textColor: AppColors.greyColor,
               fontSize: 11,
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Container(
               width: 280,
               height: 43,
@@ -568,15 +568,15 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
               child: Center(
                 child: Row(
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       width: 7,
                     ),
-                    AppText(
+                    const AppText(
                       text: "",
                       textColor: Colors.black,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    Spacer(),
+                    const Spacer(),
                     GestureDetector(
                       onTap: () {
                         Share.share(
@@ -591,7 +591,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                           color: AppColors.primaryColor,
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Center(
+                        child: const Center(
                           child: AppText(
                             text: 'Copy',
                           ),
@@ -614,7 +614,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: Colors.white,
-        title: AppText(
+        title: const AppText(
           textAlign: TextAlign.center,
           text: 'Rate recipe',
           textColor: Colors.black,
@@ -647,7 +647,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                 });
               },
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             CustomButton(
               onTap: () {
                 Navigator.pop(context);
