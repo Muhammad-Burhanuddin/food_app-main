@@ -38,6 +38,7 @@ class Recipe {
   String? procedure;
   List<Ingredient>? ingredients;
   String? time;
+  double? rating; // Added rating field
 
   Recipe({
     this.image,
@@ -45,6 +46,7 @@ class Recipe {
     this.procedure,
     this.ingredients,
     this.time,
+    this.rating,
   });
 
   factory Recipe.fromFirestore(DocumentSnapshot doc) {
@@ -53,10 +55,11 @@ class Recipe {
       image: data['image'] as String?,
       name: data['name'] as String?,
       procedure: data['procedure'] as String?,
-      ingredients: (data['ringredient'] as List<dynamic>?)
+      ingredients: (data['ingredients'] as List<dynamic>?)
           ?.map((item) => Ingredient.fromMap(item as Map<String, dynamic>))
           .toList(),
       time: data['time'] as String?,
+      rating: (data['rating'] as num?)?.toDouble(), // Map rating field
     );
   }
 
@@ -66,6 +69,7 @@ class Recipe {
         'ingredients': ingredients?.map((i) => i.toJson()).toList(),
         'image': image,
         'time': time,
+        'rating': rating, // Include rating in JSON
       };
 
   static Recipe fromJson(Map<String, dynamic> json) => Recipe(
@@ -76,5 +80,6 @@ class Recipe {
             .toList(),
         image: json['image'],
         time: json['time'],
+        rating: (json['rating'] as num?)?.toDouble(), // Parse rating from JSON
       );
 }

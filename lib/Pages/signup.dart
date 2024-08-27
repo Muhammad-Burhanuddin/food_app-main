@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:recipe_food/Pages/homescreen.dart';
 import 'package:recipe_food/Pages/login.dart';
 
 import '../AppAssets/app_assets.dart';
@@ -117,7 +116,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           AppText(
                             text: 'Accept terms & Condition',
                             textColor: AppColors.orangeColor,
-                            fontSize: 11,
+                            fontSize: 14,
                             fontWeight: FontWeight.w400,
                           ),
                         ],
@@ -142,7 +141,7 @@ class _SignupScreenState extends State<SignupScreen> {
                             child: AppText(
                               text: "Or Sign in With",
                               fontSize: isTablet ? 20 : 12,
-                              textColor: AppColors.lightGreyColor,
+                              textColor: AppColors.primaryColor,
                             ),
                           ),
                           Expanded(
@@ -153,17 +152,11 @@ class _SignupScreenState extends State<SignupScreen> {
                         ],
                       ),
                       SizedBox(height: size.height * 0.02),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const IconButtons(
-                            icon: AppAssets.googleIcon,
-                          ),
-                          SizedBox(width: 20),
-                          const IconButtons(
-                            icon: AppAssets.facebookIcon,
-                          ),
-                        ],
+                      SizedBox(
+                        width: size.width,
+                        child: IconButtons(
+                          icon: AppAssets.googleIcon,
+                        ),
                       ),
                       SizedBox(height: size.height * 0.04),
                       Align(
@@ -185,7 +178,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                 text: 'signin',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w400,
-                                  fontSize: 12,
+                                  fontSize: 14,
                                   color: AppColors.orangeColor,
                                 ),
                               ),
@@ -224,21 +217,110 @@ class _SignupScreenState extends State<SignupScreen> {
   Future<void> _signup() async {
     try {
       isLoading(true);
-      await FirebaseAuth.instance
+
+      // Check if the email is a valid Gmail address
+      if (!_email.text.endsWith('@gmail.com')) {
+        throw Exception("Please use a valid Gmail address.");
+      }
+
+      UserCredential userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(
-              email: _email.text, password: _password.text)
-          .then((value) async {
-        await saveUserData();
-        goToHome(context);
-        Get.snackbar("SignUp", "Register successfully");
+              email: _email.text, password: _password.text);
+
+      User? user = userCredential.user;
+
+      if (user != null) {
+        await user.sendEmailVerification();
+        Get.snackbar("Email Verification",
+            "A verification email has been sent to ${_email.text}. Please verify your email before logging in.");
+
+        // Show a dialog box with the email verification message
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Email Verification"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text("A verification email has been sent to:"),
+                  SizedBox(height: 8),
+                  Text(
+                    _email.text,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primaryColor,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  CircularProgressIndicator(), // Show loading indicator
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+
+                    Get.toNamed(RouteName.loginScreen);
+                  },
+                  child: Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
+
+        // Clear the input fields
         _password.clear();
         _email.clear();
         _name.clear();
-      });
+
+        // Wait for email verification
+        await _checkEmailVerification(user);
+
+        // Save the user data to Firestore only after email is verified
+        if (user.emailVerified) {
+          await saveUserData();
+          goToHome(context);
+          Get.snackbar("SignUp", "Register successfully");
+        } else {
+          Get.snackbar("Email Verification",
+              "Please verify your email before logging in.");
+        }
+      }
     } catch (error) {
-      Get.snackbar("Error", error.toString());
+      String errorMessage;
+
+      if (error is FirebaseAuthException) {
+        switch (error.code) {
+          case 'invalid-email':
+            errorMessage = "The email address is not valid.";
+            break;
+          case 'email-already-in-use':
+            errorMessage =
+                "The email address is already in use by another account.";
+            break;
+          case 'user-not-found':
+            errorMessage = "No user found with this email.";
+            break;
+          default:
+            errorMessage = error.message ?? "An unknown error occurred.";
+        }
+      } else {
+        errorMessage = error.toString();
+      }
+
+      Get.snackbar("Error", errorMessage);
     } finally {
       isLoading(false);
+    }
+  }
+
+  Future<void> _checkEmailVerification(User user) async {
+    while (!user.emailVerified) {
+      await Future.delayed(Duration(seconds: 3));
+      await user.reload();
+      user = FirebaseAuth.instance.currentUser!;
     }
   }
 }

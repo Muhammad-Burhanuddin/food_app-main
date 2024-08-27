@@ -37,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final HomeScreenController controller = Get.put(HomeScreenController());
   final TextEditingController _searchController = TextEditingController();
   bool _isSearchFocused = false;
-  double _rating = 0;
+
   late stt.SpeechToText _speech;
   bool _isListening = false;
   final translator = GoogleTranslator();
@@ -530,8 +530,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                               const SizedBox(
                                                 width: 3,
                                               ),
-                                              const AppText(
-                                                text: '4.5',
+                                              AppText(
+                                                text: recipe.rating.toString(),
                                                 fontWeight: FontWeight.w200,
                                                 fontSize: 11,
                                                 textColor: Colors.black,
@@ -693,10 +693,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                             const SizedBox(
                                               width: 3,
                                             ),
-                                            const AppText(
-                                              text: '4.5',
+                                            AppText(
+                                              text: recipe.rating
+                                                      ?.toStringAsFixed(1) ??
+                                                  '0.0',
                                               fontWeight: FontWeight.w200,
-                                              fontSize: 11,
+                                              fontSize: 12,
                                               textColor: Colors.black,
                                             ),
                                           ],

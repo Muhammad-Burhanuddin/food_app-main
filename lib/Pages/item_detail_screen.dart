@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -29,12 +30,14 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
     final containerHeight = screenHeight * 0.2; // 20% of screen height
     final ItemDetailScreenController controller =
         Get.put(ItemDetailScreenController());
+    // ignore: non_constant_identifier_names
     List<String> DetailType = ["Ingrident", "Procedure"];
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
+          backgroundColor: AppColors.primaryColor,
           actions: [
             Padding(
               padding: const EdgeInsets.only(right: 20),
@@ -89,16 +92,15 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                                 color: AppColors.lightOrangeColor,
                               ),
                               height: 23,
-                              width: 45,
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   SvgPicture.asset(AppAssets.starIcon),
-                                  const SizedBox(
-                                    width: 3,
-                                  ),
-                                  const AppText(
-                                    text: '4.5',
+                                  const SizedBox(width: 3),
+                                  AppText(
+                                    text: widget.recipe.rating
+                                            ?.toStringAsFixed(1) ??
+                                        'No rating',
                                     fontWeight: FontWeight.w200,
                                     fontSize: 11,
                                     textColor: Colors.black,
@@ -111,7 +113,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                               width: 200,
                               child: AppText(
                                 overflow: TextOverflow.clip,
-                                text: '${widget.recipe.name ?? 'Recipe name'}',
+                                text: widget.recipe.name ?? 'Recipe name',
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -130,24 +132,11 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                                 ),
                                 SizedBox(width: containerWidth * 0.02),
                                 AppText(
-                                  text:
-                                      '${widget.recipe.time ?? 'Recipe time'}',
+                                  text: widget.recipe.time ?? 'Recipe time',
                                   fontSize: 11,
                                   fontWeight: FontWeight.w400,
                                 ),
                                 SizedBox(width: containerWidth * 0.02),
-                                Container(
-                                    width: 20,
-                                    height: 20,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(13),
-                                      color: Colors.white,
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(2.0),
-                                      child: SvgPicture.asset(
-                                          AppAssets.bookMarkIcon),
-                                    )),
                               ],
                             ),
                           ],
@@ -166,14 +155,28 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                     AppText(
                       text: '${widget.recipe.name ?? 'Recipe name'}',
                       textColor: Colors.black,
-                      fontSize: 14,
+                      fontSize: 16,
                     ),
-                    const AppText(
-                      text: '(1k Reviews)',
-                      textColor: AppColors.greyColor,
-                      fontWeight: FontWeight.w400,
-                      fontSize: 14,
+
+                    GestureDetector(
+                      onTap: () {},
+                      child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(13),
+                              color: AppColors.lightGreyColor),
+                          child: Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: SvgPicture.asset(AppAssets.bookMarkIcon),
+                          )),
                     ),
+                    // const AppText(
+                    //   text: '(1k Reviews)',
+                    //   textColor: AppColors.greyColor,
+                    //   fontWeight: FontWeight.w400,
+                    //   fontSize: 14,
+                    // ),
                   ],
                 ),
 
@@ -231,7 +234,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                 const SizedBox(
                   height: 20,
                 ),
-                Obx(() => Container(
+                Obx(() => SizedBox(
                       width: MediaQuery.of(context).size.width,
                       height: 40,
                       child: TabBar(
@@ -333,7 +336,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                                   return Container(
                                     padding: const EdgeInsets.all(10),
                                     margin: const EdgeInsets.only(bottom: 10),
-                                    width: 315,
+                                    width: 300,
                                     height: 70,
                                     decoration: BoxDecoration(
                                       color: Colors.grey.shade200,
@@ -352,20 +355,20 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                                                     const Icon(Icons.error),
                                           ),
                                         ),
-                                        const SizedBox(width: 20),
+                                        const SizedBox(width: 5),
                                         SizedBox(
                                           width: 150,
                                           child: AppText(
                                             overflow: TextOverflow.clip,
                                             text: ingredient?.name ?? '',
-                                            fontSize: 14,
+                                            fontSize: 16,
                                             textColor: Colors.black,
                                           ),
                                         ),
                                         const Spacer(),
                                         AppText(
                                           text: ingredient?.price ?? '',
-                                          fontSize: 16,
+                                          fontSize: 14,
                                           textColor: AppColors.greyColor,
                                         ),
                                       ],
@@ -457,8 +460,8 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
   void _showPopupMenu(BuildContext context) {
     final RenderBox overlay =
         Overlay.of(context).context.findRenderObject() as RenderBox;
-    final double paddingFromTop = kToolbarHeight + 20;
-    final double paddingFromRight = kToolbarHeight + 70;
+    const double paddingFromTop = kToolbarHeight + 20;
+    const double paddingFromRight = kToolbarHeight + 70;
     final Offset offset = Offset(
       MediaQuery.of(context).size.width - 70 - paddingFromRight,
       paddingFromTop,
@@ -608,7 +611,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
     );
   }
 
-  void _showRateDialog(BuildContext context) {
+  void _showRateDialog(BuildContext context) async {
     double _rating = 0;
     showDialog(
       context: context,
@@ -625,8 +628,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             RatingBar.builder(
-              unratedColor: Colors
-                  .amber, // Set the unratedColor to amber for the border color
+              unratedColor: Colors.amber,
               initialRating: _rating,
               minRating: 1,
               direction: Axis.horizontal,
@@ -636,9 +638,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
               itemBuilder: (context, index) {
                 return Icon(
                   index < _rating.floor() ? Icons.star : Icons.star_border,
-                  color: index < _rating.floor()
-                      ? Colors.amber
-                      : Colors.amber, // Set color to amber for selected icons
+                  color: index < _rating.floor() ? Colors.amber : Colors.amber,
                 );
               },
               onRatingUpdate: (rating) {
@@ -649,8 +649,44 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
             ),
             const SizedBox(height: 20),
             CustomButton(
-              onTap: () {
-                Navigator.pop(context);
+              onTap: () async {
+                final recipeName =
+                    widget.recipe.name; // Recipe name to search for
+                final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+                // Query to find the recipe by name
+                final querySnapshot = await firestore
+                    .collection('recipes')
+                    .where('name', isEqualTo: recipeName)
+                    .get();
+
+                if (querySnapshot.docs.isNotEmpty) {
+                  // Recipe exists, get the first document (assuming names are unique)
+                  final docRef = querySnapshot.docs.first.reference;
+
+                  // Update the document
+                  await docRef.update({
+                    'rating': _rating,
+                    'ratingCount': FieldValue.increment(
+                        1), // Optional: update the number of ratings
+                  });
+
+                  // Recipe does not exist, handle the error
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Thanks for rating! $_rating'),
+                    ),
+                  );
+                  Navigator.pop(context);
+                } else {
+                  // Recipe does not exist, handle the error
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Recipe not found.'),
+                    ),
+                  );
+                  Navigator.pop(context);
+                }
               },
               backgroundColor: Colors.amber,
               label: 'Send',
