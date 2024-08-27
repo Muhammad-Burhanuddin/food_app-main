@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:recipe_food/Pages/auth_service.dart';
 import 'package:recipe_food/Pages/login.dart';
 
 import '../CommenWidget/app_text.dart';
+import '../Helpers/googlsignin.dart';
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
@@ -30,7 +32,15 @@ class _SettingsState extends State<Settings> {
         children: [
           ListTile(
             onTap: () async {
+              // Sign out from Firebase
               await auth.signOut();
+
+              // Sign out from Google if the user is signed in with Google
+              final googleSignInProvider =
+                  Provider.of<GoogleSignInProvider>(context, listen: false);
+              googleSignInProvider.signOut();
+
+              // Navigate to the login screen
               goToLogin(context);
             },
             title: AppText(

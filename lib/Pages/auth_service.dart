@@ -12,6 +12,9 @@ class AuthService {
     try {
       final cred = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
+      if (cred.user != null) {
+        await saveUserInfo(cred.user!);
+      }
       return cred.user;
     } on FirebaseAuthException catch (e) {
       log("Error creating user: ${e.message}");
@@ -19,6 +22,22 @@ class AuthService {
       log("Unexpected error creating user: $e");
     }
     return null;
+  }
+
+  Future<void> saveUserInfo(User user) async {
+    final userDoc = _firestore.collection('User').doc(user.uid);
+
+    final userSnapshot = await userDoc.get();
+
+    if (!userSnapshot.exists) {
+      await userDoc.set({
+        'userId': user.uid,
+        'email': user.email,
+        'name': user.displayName,
+        'createdAt': FieldValue.serverTimestamp(),
+        'signInMethod': user.providerData[0].providerId,
+      });
+    }
   }
 
   Future<User?> loginUserWithEmailAndPassword(
@@ -40,9 +59,29 @@ class AuthService {
       final doc = await _firestore.collection('User').doc(userId).get();
       if (doc.exists) {
         return UserModel.fromJson(doc.data()!);
+      } else {
+        log("No such document found for userId: $userId");
       }
     } catch (e) {
       log("Error fetching user details: $e");
+    }
+    return null;
+  }
+
+  Future<UserModel?> fetchUserDetailsByEmail(String email) async {
+    try {
+      final querySnapshot = await _firestore
+          .collection('User')
+          .where('email', isEqualTo: email)
+          .limit(1)
+          .get();
+      if (querySnapshot.docs.isNotEmpty) {
+        return UserModel.fromJson(querySnapshot.docs.first.data());
+      } else {
+        log("No document found for email: $email");
+      }
+    } catch (e) {
+      log("Error fetching user details by email: $e");
     }
     return null;
   }
@@ -68,5 +107,16 @@ class AuthService {
 
   User? getCurrentUser() {
     return _auth.currentUser;
+  }
+
+  Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+      log("Password reset email sent");
+    } on FirebaseAuthException catch (e) {
+      log("Error sending password reset email: ${e.message}");
+    } catch (e) {
+      log("Unexpected error sending password reset email: $e");
+    }
   }
 }

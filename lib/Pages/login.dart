@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 import 'package:recipe_food/CommenWidget/app_text.dart';
 import 'package:recipe_food/CommenWidget/custom_button.dart';
 import 'package:recipe_food/Pages/auth_service.dart';
@@ -9,6 +10,7 @@ import '../AppAssets/app_assets.dart';
 import '../CommenWidget/custom_text_form_field.dart';
 import '../CommenWidget/icon_button.dart';
 import '../Helpers/colors.dart';
+import '../Helpers/googlsignin.dart';
 import '../model/user_model.dart';
 import '../routes/route_name.dart';
 
@@ -90,11 +92,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
                   SizedBox(height: size.height * 0.04),
-                  const AppText(
-                    text: 'Forgot Password?',
-                    textColor: AppColors.orangeColor,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w400,
+                  GestureDetector(
+                    onTap: () => _showForgotPasswordDialog(context),
+                    child: const AppText(
+                      text: 'Forgot Password?',
+                      textColor: AppColors.orangeColor,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                   SizedBox(height: size.height * 0.04),
                   CustomButton(
@@ -116,7 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: AppText(
                           text: "Or Sign in With",
                           fontSize: isTablet ? 20 : 12,
-                          textColor: AppColors.lightGreyColor,
+                          textColor: AppColors.primaryColor,
                         ),
                       ),
                       Expanded(
@@ -127,17 +132,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                   SizedBox(height: size.height * 0.04),
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButtons(
+                  GestureDetector(
+                    onTap: () async {
+                      final googleSignInProvider =
+                          Provider.of<GoogleSignInProvider>(context,
+                              listen: false);
+                      await googleSignInProvider.googleLogin();
+                    },
+                    child: SizedBox(
+                      width: size.width,
+                      child: IconButtons(
                         icon: AppAssets.googleIcon,
                       ),
-                      SizedBox(width: 20),
-                      IconButtons(
-                        icon: AppAssets.facebookIcon,
-                      ),
-                    ],
+                    ),
                   ),
                   SizedBox(height: size.height * 0.04),
                   Align(
@@ -159,7 +166,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             text: 'sign up',
                             style: const TextStyle(
                               fontWeight: FontWeight.w400,
-                              fontSize: 12,
+                              fontSize: 14,
                               color: AppColors.orangeColor,
                             ),
                           ),
@@ -187,7 +194,17 @@ class _LoginScreenState extends State<LoginScreen> {
             _email.text, _password.text);
         if (user != null) {
           log("User Logged In");
-          final userDetails = await _auth.fetchUserDetails(user.uid);
+
+          // Check if the email is verified
+          if (!user.emailVerified) {
+            Get.snackbar("Email Verification",
+                "Please verify your email. A verification link has been sent to your email.");
+            await user.sendEmailVerification(); // Resend the verification email
+            return;
+          }
+
+          // Fetch user details using email instead of uid
+          final userDetails = await _auth.fetchUserDetailsByEmail(_email.text);
           if (userDetails != null) {
             goToHome(context, userDetails);
           } else {
@@ -215,6 +232,38 @@ class _LoginScreenState extends State<LoginScreen> {
               Navigator.of(ctx).pop();
             },
           )
+        ],
+      ),
+    );
+  }
+
+  void _showForgotPasswordDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Forgot Password"),
+        content: TextField(
+          controller: _email,
+          decoration: const InputDecoration(hintText: "Enter your email"),
+        ),
+        actions: [
+          TextButton(
+            child: const Text("Cancel"),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          TextButton(
+            child: const Text("Send"),
+            onPressed: () async {
+              if (_email.text.isNotEmpty) {
+                await _auth.sendPasswordResetEmail(_email.text);
+                Get.snackbar("Password Reset",
+                    "Password reset link sent to your email.");
+                Navigator.of(context).pop();
+              } else {
+                Get.snackbar("Error", "Please enter your email.");
+              }
+            },
+          ),
         ],
       ),
     );
