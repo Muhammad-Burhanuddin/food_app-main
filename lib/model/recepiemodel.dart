@@ -55,7 +55,7 @@ class Recipe {
       image: data['image'] as String?,
       name: data['name'] as String?,
       procedure: data['procedure'] as String?,
-      ingredients: (data['ingredients'] as List<dynamic>?)
+      ingredients: (data['ringredient'] as List<dynamic>?)
           ?.map((item) => Ingredient.fromMap(item as Map<String, dynamic>))
           .toList(),
       time: data['time'] as String?,
@@ -66,7 +66,7 @@ class Recipe {
   Map<String, dynamic> toJson() => {
         'name': name,
         'procedure': procedure,
-        'ingredients': ingredients?.map((i) => i.toJson()).toList(),
+        'ringredient': ingredients?.map((i) => i.toJson()).toList(),
         'image': image,
         'time': time,
         'rating': rating, // Include rating in JSON
@@ -75,7 +75,7 @@ class Recipe {
   static Recipe fromJson(Map<String, dynamic> json) => Recipe(
         name: json['name'],
         procedure: json['procedure'],
-        ingredients: (json['ingredients'] as List)
+        ingredients: (json['ringredient'] as List)
             .map((i) => Ingredient.fromJson(i))
             .toList(),
         image: json['image'],

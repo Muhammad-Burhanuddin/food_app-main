@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -9,8 +10,8 @@ import 'package:get/get.dart';
 import 'package:recipe_food/AppAssets/app_assets.dart';
 import 'package:recipe_food/CommenWidget/app_text.dart';
 import 'package:recipe_food/Helpers/colors.dart';
+import 'package:recipe_food/Pages/auth_service.dart';
 import 'package:recipe_food/Pages/recentsearch.dart';
-import 'package:recipe_food/model/recepiemodel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:translator/translator.dart';
@@ -27,15 +28,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<String> dishType = [
-    "All",
-    "Breakfast",
-    "Lunch",
-    'Dinner',
-    "Desserts"
-  ];
   final HomeScreenController controller = Get.put(HomeScreenController());
   final TextEditingController _searchController = TextEditingController();
+  UserModel? _user;
+  final AuthService _authService = AuthService();
+
   bool _isSearchFocused = false;
 
   late stt.SpeechToText _speech;
@@ -47,10 +44,24 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _fetchUserData();
     _speech = stt.SpeechToText();
     _initializeLangDetect();
     _initPrefs();
     _loadRecentSearches();
+  }
+
+  Future<void> _fetchUserData() async {
+    final User? currentUser = _authService.getCurrentUser();
+    if (currentUser != null) {
+      final UserModel? user =
+          await _authService.fetchUserDetails(currentUser.uid);
+      if (user != null) {
+        setState(() {
+          _user = user;
+        });
+      }
+    }
   }
 
   void _loadRecentSearches() async {
@@ -95,7 +106,8 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _saveRecipeToBookmarks(String recipeName, String recipeImage) {
+  void _saveRecipeToBookmarks(String recipeName, String recipeImage,
+      String recipetime, double reciperating, String recipeprocedure) {
     List<Map<String, String>> bookmarks = _prefs
             ?.getStringList('savedRecipes')
             ?.map((e) => Map<String, String>.from(json.decode(e)))
@@ -112,7 +124,13 @@ class _HomeScreenState extends State<HomeScreen> {
         SnackBar(content: Text('$recipeName removed from saved recipes')),
       );
     } else {
-      bookmarks.add({'name': recipeName, 'image': recipeImage});
+      bookmarks.add({
+        'name': recipeName,
+        'image': recipeImage,
+        'time': recipetime,
+        'rating': reciperating.toString(),
+        'procedure': recipeprocedure
+      });
       print('$recipeName added to saved recipes');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('$recipeName added to saved recipes')),
@@ -172,35 +190,18 @@ class _HomeScreenState extends State<HomeScreen> {
     return text;
   }
 
-  // void _searchRecipes(String query) {
-  //   final filteredRecipes = controller.recipes.where((recipe) {
-  //     return recipe.name!.toLowerCase().contains(query.toLowerCase()) ||
-  //         recipe.ingredients!.any((ingredient) =>
-  //             ingredient.name!.toLowerCase().contains(query.toLowerCase()));
-  //   }).toList();
-  //   controller.filteredRecipes.value = filteredRecipes;
-  // }
-
   void _searchRecipes(String query) {
-    // Get the list of selected ingredients
-    final selected = controller.ingredients
-        .where((ingredient) => controller
-            .selectedIngredients[controller.ingredients.indexOf(ingredient)]
-            .value)
-        .toList();
+    // final selectedIngredientsList = controller.ingredients
+    //     .where((ingredient) => controller
+    //         .selectedIngredients[controller.ingredients.indexOf(ingredient)]
+    //         .value)
+    //     .toList();
 
-    // Filter recipes based on the search query and selected ingredients
     final filteredRecipes = controller.recipes.where((recipe) {
       final matchesQuery =
-          recipe.name!.toLowerCase().contains(query.toLowerCase()) ||
-              recipe.ingredients!.any((ingredient) =>
-                  ingredient.name!.toLowerCase().contains(query.toLowerCase()));
+          (recipe.name?.toLowerCase().contains(query.toLowerCase()) ?? false);
 
-      final matchesIngredients = selected.isEmpty ||
-          recipe.ingredients!
-              .any((ingredient) => selected.contains(ingredient.name));
-
-      return matchesQuery && matchesIngredients;
+      return matchesQuery;
     }).toList();
 
     controller.filteredRecipes.value = filteredRecipes;
@@ -208,8 +209,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic> args = Get.arguments ?? {};
-    final UserModel user = args['user'] ?? UserModel(name: 'Guest');
     return DefaultTabController(
       length: 5,
       child: Scaffold(
@@ -227,7 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: const EdgeInsets.only(left: 7),
                     child: ListTile(
                       title: AppText(
-                        text: 'Welcome, ${user.name}',
+                        text: 'Welcome, ${_user!.name ?? 'Guest'}',
                         textColor: Colors.black,
                         fontSize: 20,
                       ),
@@ -247,7 +246,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(10),
                           child: Image.network(
-                            user.imageUrl ?? AppAssets.profileIcon,
+                            _user!.imageUrl ?? AppAssets.profileIcon,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
                               return Image.asset(
@@ -463,8 +462,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     onTap: () {
                                                       _saveRecipeToBookmarks(
                                                         recipe.name!,
-                                                        // Add the missing argument here
                                                         recipe.image!,
+                                                        recipe.time!,
+                                                        recipe.rating!,
+                                                        recipe.procedure!,
                                                       );
                                                     },
                                                     child: Container(
@@ -629,6 +630,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     _saveRecipeToBookmarks(
                                                       recipe.name!,
                                                       recipe.image!,
+                                                      recipe.time!,
+                                                      recipe.rating!,
+                                                      recipe.procedure!,
                                                     );
                                                   },
                                                   child: Container(

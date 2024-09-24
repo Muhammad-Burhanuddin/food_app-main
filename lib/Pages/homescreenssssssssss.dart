@@ -821,19 +821,16 @@
 // }
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:recipe_food/AppAssets/app_assets.dart';
 import 'package:recipe_food/CommenWidget/app_text.dart';
-import 'package:recipe_food/CommenWidget/recent_search_container.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:translator/translator.dart';
 import '../Controllers/home_screen_controller.dart';
 import '../Helpers/colors.dart';
-import '../model/recepiemodel.dart';
 import 'item_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {

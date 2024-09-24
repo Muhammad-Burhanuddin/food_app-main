@@ -85,14 +85,7 @@ class HomeScreenController extends GetxController {
         .where((ingredient) =>
             selectedIngredients[ingredients.indexOf(ingredient)].value)
         .toList();
-    if (selected.isEmpty) {
-      filteredRecipes.value = recipes;
-    } else {
-      filteredRecipes.value = recipes.where((recipe) {
-        return recipe.ingredients!
-            .any((ingredient) => selected.contains(ingredient.name));
-      }).toList();
-    }
+
     print("Selected Ingredients: $selected");
     update();
   }

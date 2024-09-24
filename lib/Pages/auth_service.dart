@@ -97,6 +97,20 @@ class AuthService {
     }
   }
 
+  // New method to update user profile (name and bio)
+  Future<void> updateUserProfile(
+      String userId, String newName, String newBio) async {
+    try {
+      await _firestore.collection('User').doc(userId).update({
+        'name': newName,
+        'bio': newBio,
+      });
+      log("User profile updated successfully");
+    } catch (e) {
+      log("Error updating user profile: $e");
+    }
+  }
+
   Future<void> signOut() async {
     try {
       await _auth.signOut();

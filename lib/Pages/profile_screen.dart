@@ -8,13 +8,10 @@ import 'package:recipe_food/CommenWidget/app_text.dart';
 import 'package:recipe_food/Controllers/profile_screen_controller.dart';
 import 'package:recipe_food/Pages/settings.dart';
 import 'package:recipe_food/ProfileTabContent/recipe_tab.dart';
-import 'package:recipe_food/ProfileTabContent/tag_tab.dart';
-import 'package:recipe_food/ProfileTabContent/vidieo-tab.dart';
 import 'package:recipe_food/Helpers/colors.dart';
 import 'package:recipe_food/model/user_model.dart';
 import 'package:recipe_food/Pages/auth_service.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-import 'package:firebase_core/firebase_core.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -83,10 +80,80 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  void _showEditDialog() {
+    if (_user == null) {
+      // Handle the case where _user is null
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("User data is not available")),
+      );
+      return;
+    }
+
+    TextEditingController nameController =
+        TextEditingController(text: _user!.name);
+    TextEditingController bioController =
+        TextEditingController(text: _user!.bio);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Edit Profile"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(labelText: "Name"),
+              ),
+              TextField(
+                controller: bioController,
+                decoration: const InputDecoration(labelText: "Bio"),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () async {
+                String updatedName = nameController.text.trim();
+                String updatedBio = bioController.text.trim();
+
+                await _authService.updateUserProfile(
+                    _user!.userId!, updatedName, updatedBio);
+
+                setState(() {
+                  _user!.name = updatedName;
+                  _user!.bio = updatedBio;
+                });
+
+                Navigator.pop(context);
+              },
+              child: const Text("Save"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     final bool isTabletScreen = size.width >= 600;
+
+    final user = _authService.getCurrentUser;
+    if (user == null) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -95,14 +162,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           backgroundColor: AppColors.primaryColor,
           automaticallyImplyLeading: false,
           centerTitle: true,
-          title: AppText(
+          title: const AppText(
             text: 'Profile',
             textColor: Colors.white,
             fontSize: 18,
           ),
           actions: [
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.0),
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: InkWell(
                 onTap: () {
                   Navigator.push(
@@ -110,7 +177,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     MaterialPageRoute(builder: (context) => const Settings()),
                   );
                 },
-                child: Icon(
+                child: const Icon(
                   Icons.more_horiz_outlined,
                   color: Colors.white,
                 ),
@@ -121,7 +188,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: _user == null
-              ? Center(child: CircularProgressIndicator())
+              ? const Center(child: CircularProgressIndicator())
               : Padding(
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   child: Column(
@@ -132,7 +199,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: Container(
                           height: 150,
                           width: 150,
-                          decoration: BoxDecoration(shape: BoxShape.circle),
+                          decoration:
+                              const BoxDecoration(shape: BoxShape.circle),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(100),
                             child: Image.network(
@@ -148,30 +216,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 20),
-                      AppText(
-                        text: _user!.name ?? 'N/A',
-                        textColor: Colors.black,
-                        fontSize: 18,
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          AppText(
+                            text: _user!.name ?? 'N/A',
+                            textColor: Colors.black,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.grey),
+                            onPressed: _showEditDialog,
+                          ),
+                        ],
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 10),
                       AppText(
-                        text: 'Chef',
+                        text: _user!.bio ?? 'Bio',
                         textColor: Colors.grey,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w400,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
                       ),
-                      SizedBox(height: 10),
-                      AppText(
-                        text: 'Private Chef \n'
-                            'Passionate about food and life 🥘🍲🍝🍱\n'
-                            'More...',
-                        textColor: Colors.grey,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w400,
-                      ),
-                      SizedBox(height: 20),
-                      Obx(() => Container(
+                      const SizedBox(height: 20),
+                      Obx(() => SizedBox(
                             width: MediaQuery.of(context).size.width,
                             height: 40,
                             child: TabBar(
@@ -180,7 +249,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 borderRadius: BorderRadius.circular(50),
                                 color: Colors.transparent,
                               ),
-                              labelPadding: EdgeInsets.symmetric(horizontal: 0),
+                              labelPadding:
+                                  const EdgeInsets.symmetric(horizontal: 0),
                               onTap: (index) {
                                 controller.changeTabIndex(index);
                               },
@@ -240,12 +310,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               }).toList(),
                             ),
                           )),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Expanded(
                         child: Obx(() {
                           switch (controller.selectedIndex) {
                             case 0:
-                              return RecipeTab();
+                              return const RecipeTab();
                             case 1:
                               return const RecipeTab();
                             case 2:

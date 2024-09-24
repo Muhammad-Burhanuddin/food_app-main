@@ -5,7 +5,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:recipe_food/AppAssets/app_assets.dart';
 import 'package:recipe_food/CommenWidget/app_text.dart';
 import 'package:recipe_food/Helpers/colors.dart';
-import 'package:recipe_food/routes/route_name.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../model/recepiemodel.dart';
@@ -27,6 +26,40 @@ class _SavedScreenState extends State<SavedScreen> {
   void initState() {
     super.initState();
     _initPrefs();
+  }
+
+  void _saveRecipeToBookmarks(
+    String recipeName,
+    String recipeImage,
+  ) {
+    List<Map<String, String>> bookmarks = _prefs
+            ?.getStringList('savedRecipes')
+            ?.map((e) => Map<String, String>.from(json.decode(e)))
+            .toList() ??
+        [];
+
+    final recipeIndex =
+        bookmarks.indexWhere((recipe) => recipe['name'] == recipeName);
+
+    if (recipeIndex != -1) {
+      bookmarks.removeAt(recipeIndex);
+      print('$recipeName removed from saved recipes');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$recipeName removed from saved recipes')),
+      );
+    } else {
+      bookmarks.add({
+        'name': recipeName,
+        'image': recipeImage,
+      });
+      print('$recipeName added to saved recipes');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$recipeName added to saved recipes')),
+      );
+    }
+
+    _prefs?.setStringList(
+        'savedRecipes', bookmarks.map((e) => json.encode(e)).toList());
   }
 
   Future<void> _initPrefs() async {
@@ -102,6 +135,9 @@ class _SavedScreenState extends State<SavedScreen> {
                 final recipe = _savedRecipes[index];
                 final recipeName = recipe['name'] ?? '';
                 final recipeImage = recipe['image'] ?? '';
+                final recipeTime = recipe['time'] ?? '';
+                final reciperating = recipe['rating'] ?? '';
+                final recipeprocedure = recipe['procedure'] ?? '';
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -163,7 +199,7 @@ class _SavedScreenState extends State<SavedScreen> {
                                         width: 3,
                                       ),
                                       AppText(
-                                        text: '4.5',
+                                        text: reciperating,
                                         fontWeight: FontWeight.w200,
                                         fontSize: 11,
                                         textColor: Colors.black,
@@ -190,13 +226,18 @@ class _SavedScreenState extends State<SavedScreen> {
                                     ),
                                     SizedBox(width: containerWidth * 0.02),
                                     AppText(
-                                      text: '20 mins',
+                                      text: recipeTime,
                                       fontSize: 11,
                                       fontWeight: FontWeight.w400,
                                     ),
                                     SizedBox(width: containerWidth * 0.02),
                                     GestureDetector(
-                                      onTap: () {},
+                                      onTap: () {
+                                        _saveRecipeToBookmarks(
+                                          recipeName,
+                                          recipeImage,
+                                        );
+                                      },
                                       child: Container(
                                         width: 30,
                                         height: 30,

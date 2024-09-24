@@ -137,7 +137,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       final googleSignInProvider =
                           Provider.of<GoogleSignInProvider>(context,
                               listen: false);
-                      await googleSignInProvider.googleLogin();
+                      try {
+                        await googleSignInProvider.googleLogin();
+                      } catch (e) {
+                        Get.snackbar("Error",
+                            "Google Sign-In failed. Please try again.");
+                      }
                     },
                     child: SizedBox(
                       width: size.width,
@@ -194,7 +199,6 @@ class _LoginScreenState extends State<LoginScreen> {
             _email.text, _password.text);
         if (user != null) {
           log("User Logged In");
-
           // Check if the email is verified
           if (!user.emailVerified) {
             Get.snackbar("Email Verification",

@@ -153,7 +153,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     AppText(
-                      text: '${widget.recipe.name ?? 'Recipe name'}',
+                      text: widget.recipe.name ?? 'Recipe name',
                       textColor: Colors.black,
                       fontSize: 16,
                     ),
@@ -311,14 +311,14 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                                 const SizedBox(width: 5),
                                 const AppText(
                                   text: '1 serve',
-                                  fontSize: 11,
+                                  fontSize: 12,
                                   textColor: AppColors.greyColor,
                                 ),
                                 const Spacer(),
                                 AppText(
                                   text:
                                       '${widget.recipe.ingredients?.length ?? 0} Items',
-                                  fontSize: 11,
+                                  fontSize: 12,
                                   textColor: AppColors.greyColor,
                                 ),
                               ],
@@ -390,14 +390,14 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                                 ),
                                 const AppText(
                                   text: '1 serve',
-                                  fontSize: 11,
+                                  fontSize: 12,
                                   textColor: AppColors.greyColor,
                                 ),
                                 const Spacer(),
                                 AppText(
                                   text:
                                       '${widget.recipe.ingredients?.length ?? 0} Items',
-                                  fontSize: 11,
+                                  fontSize: 12,
                                   textColor: AppColors.greyColor,
                                 ),
                               ],
@@ -539,77 +539,77 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
     );
   }
 
-  void _showShareDialog(BuildContext context, Recipe recipe) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: Colors.white,
-        title: const AppText(
-          text: 'Recipe Data ',
-          textColor: Colors.black,
-          fontSize: 20,
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const AppText(
-              text:
-                  'Copy recipe link and share your recipe link with friends and family.',
-              fontWeight: FontWeight.w400,
-              textColor: AppColors.greyColor,
-              fontSize: 11,
-            ),
-            const SizedBox(height: 10),
-            Container(
-              width: 280,
-              height: 43,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Center(
-                child: Row(
-                  children: [
-                    const SizedBox(
-                      width: 7,
-                    ),
-                    const AppText(
-                      text: "",
-                      textColor: Colors.black,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const Spacer(),
-                    GestureDetector(
-                      onTap: () {
-                        Share.share(
-                          'Check out this recipe: ${recipe.name} - ${recipe.procedure} - ${recipe.ingredients}',
-                          subject: 'Look what I made!',
-                        );
-                      },
-                      child: Container(
-                        height: 43,
-                        width: 50,
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryColor,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Center(
-                          child: AppText(
-                            text: 'Copy',
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // void _showShareDialog(BuildContext context, Recipe recipe) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (_) => AlertDialog(
+  //       backgroundColor: Colors.white,
+  //       title: const AppText(
+  //         text: 'Recipe Data ',
+  //         textColor: Colors.black,
+  //         fontSize: 20,
+  //       ),
+  //       content: Column(
+  //         mainAxisSize: MainAxisSize.min,
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           const AppText(
+  //             text:
+  //                 'Copy recipe link and share your recipe link with friends and family.',
+  //             fontWeight: FontWeight.w400,
+  //             textColor: AppColors.greyColor,
+  //             fontSize: 11,
+  //           ),
+  //           const SizedBox(height: 10),
+  //           Container(
+  //             width: 280,
+  //             height: 43,
+  //             decoration: BoxDecoration(
+  //               color: Colors.grey.shade300,
+  //               borderRadius: BorderRadius.circular(10),
+  //             ),
+  //             child: Center(
+  //               child: Row(
+  //                 children: [
+  //                   const SizedBox(
+  //                     width: 7,
+  //                   ),
+  //                   const AppText(
+  //                     text: "",
+  //                     textColor: Colors.black,
+  //                     overflow: TextOverflow.ellipsis,
+  //                   ),
+  //                   const Spacer(),
+  //                   GestureDetector(
+  //                     onTap: () {
+  //                       Share.share(
+  //                         'Check out this recipe: ${recipe.name} - ${recipe.procedure} - ${recipe.ingredients}',
+  //                         subject: 'Look what I made!',
+  //                       );
+  //                     },
+  //                     child: Container(
+  //                       height: 43,
+  //                       width: 50,
+  //                       decoration: BoxDecoration(
+  //                         color: AppColors.primaryColor,
+  //                         borderRadius: BorderRadius.circular(10),
+  //                       ),
+  //                       child: const Center(
+  //                         child: AppText(
+  //                           text: 'Copy',
+  //                         ),
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   void _showRateDialog(BuildContext context) async {
     double _rating = 0;
