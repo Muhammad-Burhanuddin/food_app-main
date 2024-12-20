@@ -25,25 +25,10 @@ class _AllState extends State<All> {
           ListView.builder(
               scrollDirection: Axis.vertical,
               shrinkWrap: true,
-              itemCount: 2,
+              itemCount: 0,
               itemBuilder: (index, context) {
                 return NotificationContainer();
               }),
-          AppText(
-            text: 'Yesterday',
-            fontSize: 11,
-            textColor: Colors.black,
-          ),
-          ListView.builder(
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              itemCount: 3,
-              itemBuilder: (index, context) {
-                return NotificationContainer();
-              }),
-          SizedBox(
-            height: 20,
-          ),
         ],
       ),
     );

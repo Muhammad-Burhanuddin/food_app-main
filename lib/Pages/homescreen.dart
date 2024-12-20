@@ -191,12 +191,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _searchRecipes(String query) {
-    // final selectedIngredientsList = controller.ingredients
-    //     .where((ingredient) => controller
-    //         .selectedIngredients[controller.ingredients.indexOf(ingredient)]
-    //         .value)
-    //     .toList();
-
     final filteredRecipes = controller.recipes.where((recipe) {
       final matchesQuery =
           (recipe.name?.toLowerCase().contains(query.toLowerCase()) ?? false);
@@ -224,40 +218,43 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(left: 7),
-                    child: ListTile(
-                      title: AppText(
-                        text: 'Welcome, ${_user!.name ?? 'Guest'}',
-                        textColor: Colors.black,
-                        fontSize: 20,
-                      ),
-                      subtitle: const AppText(
-                        text: 'What are you cooking today?',
-                        textColor: Colors.black,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w400,
-                      ),
-                      trailing: Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: AppColors.orangeColor,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.network(
-                            _user!.imageUrl ?? AppAssets.profileIcon,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Image.asset(
-                                AppAssets.profileIcon,
-                                fit: BoxFit.cover,
-                              );
-                            },
+                    child: _user == null
+                        ? Center(
+                            child: Center()) // Show spinner if user is null
+                        : ListTile(
+                            title: AppText(
+                              text: 'Welcome, ${_user!.name ?? 'Guest'}',
+                              textColor: Colors.black,
+                              fontSize: 20,
+                            ),
+                            subtitle: const AppText(
+                              text: 'What are you cooking today?',
+                              textColor: Colors.black,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w400,
+                            ),
+                            trailing: Container(
+                              width: 60,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                color: AppColors.orangeColor,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.network(
+                                  _user!.imageUrl ?? AppAssets.profileIcon,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Image.asset(
+                                      AppAssets.profileIcon,
+                                      fit: BoxFit.cover,
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    ),
                   ),
                   const SizedBox(
                     height: 20,
@@ -666,14 +663,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                       child: ClipRRect(
                                         borderRadius:
                                             BorderRadius.circular(100),
-                                        child: CachedNetworkImage(
-                                          width: 100,
-                                          height: 100,
-                                          fit: BoxFit.cover,
-                                          imageUrl: recipe.image!,
-                                          errorWidget: (context, url, error) =>
-                                              const Icon(Icons.error),
-                                        ),
+                                        child: recipe.image != null &&
+                                                recipe.image!.isNotEmpty
+                                            ? CachedNetworkImage(
+                                                width: 100,
+                                                height: 100,
+                                                fit: BoxFit.cover,
+                                                imageUrl: recipe.image!,
+                                                errorWidget:
+                                                    (context, url, error) =>
+                                                        const Icon(Icons.error),
+                                              )
+                                            : const Icon(
+                                                Icons.image_not_supported,
+                                                size: 100,
+                                                color: Colors.grey,
+                                              ), // Fallback for null or empty image URL
                                       ),
                                     ),
                                     Positioned(
@@ -782,29 +787,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                               ),
                                               Row(
                                                 mainAxisAlignment:
-                                                    MainAxisAlignment.center,
+                                                    MainAxisAlignment.start,
                                                 children: [
-                                                  Container(
-                                                    width: 25,
-                                                    height: 25,
-                                                    child: ClipRRect(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              13),
-                                                      child: Image.asset(
-                                                          AppAssets
-                                                              .personImage),
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 5),
-                                                  const AppText(
-                                                    text: 'By Unknown}',
-                                                    textColor:
-                                                        AppColors.blackColor,
-                                                    fontSize: 11,
-                                                    fontWeight: FontWeight.w400,
-                                                  ),
-                                                  const SizedBox(width: 50),
                                                   AppText(
                                                     text: recipe.time ??
                                                         'Unknown',
@@ -823,20 +807,27 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                       ),
                                       Positioned(
-                                        right: 0,
+                                        right: 30,
                                         top: 0,
                                         child: ClipRRect(
                                           borderRadius:
                                               BorderRadius.circular(100),
-                                          child: CachedNetworkImage(
-                                            width: 80,
-                                            height: 80,
-                                            fit: BoxFit.cover,
-                                            imageUrl: recipe.image!,
-                                            errorWidget:
-                                                (context, url, error) =>
-                                                    const Icon(Icons.error),
-                                          ),
+                                          child: recipe.image != null &&
+                                                  recipe.image!.isNotEmpty
+                                              ? CachedNetworkImage(
+                                                  width: 100,
+                                                  height: 100,
+                                                  fit: BoxFit.cover,
+                                                  imageUrl: recipe.image!,
+                                                  errorWidget: (context, url,
+                                                          error) =>
+                                                      const Icon(Icons.error),
+                                                )
+                                              : const Icon(
+                                                  Icons.image_not_supported,
+                                                  size: 100,
+                                                  color: Colors.grey,
+                                                ), // Fallback for null or empty image URL
                                         ),
                                       ),
                                     ]),

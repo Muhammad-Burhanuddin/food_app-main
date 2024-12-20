@@ -506,20 +506,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
             _showRateDialog(context);
           },
         ),
-        PopupMenuItem(
-          child: Row(
-            children: [
-              SvgPicture.asset(AppAssets.messageIcon),
-              const SizedBox(
-                width: 10,
-              ),
-              const Text('Review'),
-            ],
-          ),
-          onTap: () {
-            Get.toNamed(RouteName.reviewsScreen);
-          },
-        ),
+
         PopupMenuItem(
           child: Row(
             children: [

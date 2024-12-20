@@ -38,7 +38,7 @@ class _SignupScreenState extends State<SignupScreen> {
     return Scaffold(
       body: SafeArea(
         child: Obx(() => isLoading.value
-            ? Center(child: CircularProgressIndicator())
+            ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
                 scrollDirection: Axis.vertical,
                 child: Padding(
@@ -48,13 +48,13 @@ class _SignupScreenState extends State<SignupScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      AppText(
+                      const AppText(
                         text: 'Create an account',
                         textColor: Colors.black,
                         fontSize: 20,
                       ),
                       SizedBox(height: size.height * 0.015),
-                      AppText(
+                      const AppText(
                         text:
                             'Let’s help you set up your account,\nit won’t take long.',
                         textColor: Colors.black,
@@ -112,8 +112,8 @@ class _SignupScreenState extends State<SignupScreen> {
                               ),
                             ),
                           ),
-                          SizedBox(width: 5),
-                          AppText(
+                          const SizedBox(width: 5),
+                          const AppText(
                             text: 'Accept terms & Condition',
                             textColor: AppColors.orangeColor,
                             fontSize: 14,
@@ -137,7 +137,7 @@ class _SignupScreenState extends State<SignupScreen> {
                             color: AppColors.lightGreyColor,
                           )),
                           Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 5),
+                            padding: const EdgeInsets.symmetric(horizontal: 5),
                             child: AppText(
                               text: "Or Sign in With",
                               fontSize: isTablet ? 20 : 12,
@@ -154,7 +154,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       SizedBox(height: size.height * 0.02),
                       SizedBox(
                         width: size.width,
-                        child: IconButtons(
+                        child: const IconButtons(
                           icon: AppAssets.googleIcon,
                         ),
                       ),
@@ -164,7 +164,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         child: RichText(
                           text: TextSpan(
                             text: "Already a member? ",
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.black,
                               fontSize: 12,
                               fontWeight: FontWeight.w400,
@@ -176,7 +176,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                     Get.toNamed(RouteName.loginScreen);
                                   },
                                 text: 'signin',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontWeight: FontWeight.w400,
                                   fontSize: 14,
                                   color: AppColors.orangeColor,
@@ -197,7 +197,7 @@ class _SignupScreenState extends State<SignupScreen> {
   void goToLogin(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => LoginScreen()),
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
     );
   }
 
@@ -206,12 +206,22 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   Future<void> saveUserData() async {
-    FirestoreService firestoreService = FirestoreService();
-    String name = _name.text;
-    String email = _email.text;
-    String pass = _password.text;
+    String name = _name.text.trim();
+    String email = _email.text.trim();
+    String pass = _password.text.trim();
 
-    await firestoreService.addUserToFirestore(name, email, pass);
+    if (name.isEmpty || email.isEmpty || pass.isEmpty) {
+      log('Error: Fields cannot be empty');
+      Get.snackbar('Error', 'All fields are required.');
+      return;
+    }
+
+    try {
+      await FirestoreService().addUserToFirestore(name, email, pass);
+    } catch (e) {
+      log('Error saving user data: $e');
+      Get.snackbar('Error', 'Failed to save user data.');
+    }
   }
 
   Future<void> _signup() async {
@@ -229,7 +239,7 @@ class _SignupScreenState extends State<SignupScreen> {
               email: _email.text, password: _password.text);
 
       User? user = userCredential.user;
-
+      await saveUserData();
       if (user != null) {
         await user.sendEmailVerification();
         Get.snackbar("Email Verification",
@@ -240,21 +250,21 @@ class _SignupScreenState extends State<SignupScreen> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text("Email Verification"),
+              title: const Text("Email Verification"),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text("A verification email has been sent to:"),
-                  SizedBox(height: 8),
+                  const Text("A verification email has been sent to:"),
+                  const SizedBox(height: 8),
                   Text(
                     _email.text,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       color: AppColors.primaryColor,
                     ),
                   ),
-                  SizedBox(height: 16),
-                  CircularProgressIndicator(), // Show loading indicator
+                  const SizedBox(height: 16),
+                  const CircularProgressIndicator(), // Show loading indicator
                 ],
               ),
               actions: [
@@ -264,7 +274,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
                     Get.toNamed(RouteName.loginScreen);
                   },
-                  child: Text("OK"),
+                  child: const Text("OK"),
                 ),
               ],
             );
@@ -276,7 +286,6 @@ class _SignupScreenState extends State<SignupScreen> {
 
         // Save the user data to Firestore only after email is verified
         if (user.emailVerified) {
-          await saveUserData();
           goToHome(context);
           Get.snackbar("SignUp", "Register successfully");
         } else {
@@ -312,111 +321,9 @@ class _SignupScreenState extends State<SignupScreen> {
     }
   }
 
-  // Future<void> _signup() async {
-  //   try {
-  //     isLoading(true);
-
-  //     // Check if the email is a valid Gmail address
-  //     if (!_email.text.endsWith('@gmail.com')) {
-  //       throw Exception("Please use a valid Gmail address.");
-  //     }
-
-  //     UserCredential userCredential = await FirebaseAuth.instance
-  //         .createUserWithEmailAndPassword(
-  //             email: _email.text, password: _password.text);
-
-  //     User? user = userCredential.user;
-
-  //     if (user != null) {
-  //       await user.sendEmailVerification();
-  //       Get.snackbar("Email Verification",
-  //           "A verification email has been sent to ${_email.text}. Please verify your email before logging in.");
-
-  //       // Show a dialog box with the email verification message
-  //       showDialog(
-  //         context: context,
-  //         builder: (BuildContext context) {
-  //           return AlertDialog(
-  //             title: Text("Email Verification"),
-  //             content: Column(
-  //               mainAxisSize: MainAxisSize.min,
-  //               children: [
-  //                 Text("A verification email has been sent to:"),
-  //                 SizedBox(height: 8),
-  //                 Text(
-  //                   _email.text,
-  //                   style: TextStyle(
-  //                     fontWeight: FontWeight.bold,
-  //                     color: AppColors.primaryColor,
-  //                   ),
-  //                 ),
-  //                 SizedBox(height: 16),
-  //                 CircularProgressIndicator(), // Show loading indicator
-  //               ],
-  //             ),
-  //             actions: [
-  //               TextButton(
-  //                 onPressed: () {
-  //                   Navigator.of(context).pop();
-
-  //                   Get.toNamed(RouteName.loginScreen);
-  //                 },
-  //                 child: Text("OK"),
-  //               ),
-  //             ],
-  //           );
-  //         },
-  //       );
-
-  //       // Clear the input fields
-  //       _password.clear();
-  //       _email.clear();
-  //       _name.clear();
-
-  //       // Wait for email verification
-  //       await _checkEmailVerification(user);
-
-  //       // Save the user data to Firestore only after email is verified
-  //       if (user.emailVerified) {
-  //         await saveUserData();
-  //         goToHome(context);
-  //         Get.snackbar("SignUp", "Register successfully");
-  //       } else {
-  //         Get.snackbar("Email Verification",
-  //             "Please verify your email before logging in.");
-  //       }
-  //     }
-  //   } catch (error) {
-  //     String errorMessage;
-
-  //     if (error is FirebaseAuthException) {
-  //       switch (error.code) {
-  //         case 'invalid-email':
-  //           errorMessage = "The email address is not valid.";
-  //           break;
-  //         case 'email-already-in-use':
-  //           errorMessage =
-  //               "The email address is already in use by another account.";
-  //           break;
-  //         case 'user-not-found':
-  //           errorMessage = "No user found with this email.";
-  //           break;
-  //         default:
-  //           errorMessage = error.message ?? "An unknown error occurred.";
-  //       }
-  //     } else {
-  //       errorMessage = error.toString();
-  //     }
-
-  //     Get.snackbar("Error", errorMessage);
-  //   } finally {
-  //     isLoading(false);
-  //   }
-  // }
-
   Future<void> _checkEmailVerification(User user) async {
     while (!user.emailVerified) {
-      await Future.delayed(Duration(seconds: 3));
+      await Future.delayed(const Duration(seconds: 3));
       await user.reload();
       user = FirebaseAuth.instance.currentUser!;
     }

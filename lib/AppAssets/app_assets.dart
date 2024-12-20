@@ -1,7 +1,4 @@
-
-
-
-class AppAssets{
+class AppAssets {
   //images
   static const String splashBgImage = 'assets/images/splash-background.jpeg';
   static const String foodImage = 'assets/images/food.png';
@@ -10,9 +7,6 @@ class AppAssets{
   static const String saveItem = 'assets/images/saveitem.png';
   static const String profilePhoto = 'assets/images/profilephoto.png';
   static const String tomato = 'assets/images/tomato.png';
-
-
-
 
   //icons
   static const String splashIcon = 'assets/images/splash-icons.png';
@@ -31,8 +25,4 @@ class AppAssets{
   static const String serveIcon = 'assets/icons/serve.svg';
   static const String filterIcon = 'assets/images/filter.png';
   static const String profileIcon = 'assets/images/profile.png';
-
-
-
-
 }

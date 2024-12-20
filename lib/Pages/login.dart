@@ -207,13 +207,15 @@ class _LoginScreenState extends State<LoginScreen> {
             return;
           }
 
-          // Fetch user details using email instead of uid
-          final userDetails = await _auth.fetchUserDetailsByEmail(_email.text);
-          if (userDetails != null) {
-            goToHome(context, userDetails);
-          } else {
-            _showErrorDialog('User details not found');
-          }
+          Navigator.pushReplacementNamed(
+              context, RouteName.bottomNavigationBar);
+          // // Fetch user details using email instead of uid
+          // final userDetails = await _auth.fetchUserDetails(_email.text);
+          // if (userDetails != null) {
+          //   goToHome(context, userDetails);
+          // } else {
+          //   _showErrorDialog('User details not found');
+          // }
         } else {
           _showErrorDialog('Invalid email or password');
         }

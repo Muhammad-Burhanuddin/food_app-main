@@ -1,17 +1,24 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:recipe_food/AppAssets/app_assets.dart';
 import 'package:recipe_food/CommenWidget/app_text.dart';
 import 'package:recipe_food/Controllers/profile_screen_controller.dart';
-import 'package:recipe_food/Pages/settings.dart';
-import 'package:recipe_food/ProfileTabContent/recipe_tab.dart';
+import 'package:recipe_food/Pages/add_recipes.dart';
+import 'package:recipe_food/Pages/item_detail_screen.dart';
+import 'package:recipe_food/Pages/settings.dart' as recipe_food_settings;
 import 'package:recipe_food/Helpers/colors.dart';
+import 'package:recipe_food/model/recepiemodel.dart';
 import 'package:recipe_food/model/user_model.dart';
 import 'package:recipe_food/Pages/auth_service.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+
+import '../CommenWidget/custom_button.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -23,6 +30,9 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final ProfileScreencontroller controller = Get.put(ProfileScreencontroller());
   final AuthService _authService = AuthService();
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  List<Recipe> _userRecipes = [];
   UserModel? _user;
   File? _imageFile;
   final List<String> profileType = ["Recipe", "Videos", "Tag"];
@@ -42,7 +52,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
         setState(() {
           _user = user;
         });
+        _fetchUserRecipes(
+            currentUser.uid); // Fetch recipes for the current user
       }
+    }
+  }
+
+  Future<void> _fetchUserRecipes(String userId) async {
+    try {
+      final snapshot = await _firestore
+          .collection('recipes')
+          .where('userId', isEqualTo: userId)
+          .get();
+
+      print('Fetched ${snapshot.docs.length} recipes'); // Debugging line
+      final recipes = snapshot.docs.map((doc) {
+        return Recipe.fromFirestore(doc);
+      }).toList();
+
+      setState(() {
+        _userRecipes = recipes;
+      });
+    } catch (e) {
+      print('Error fetching recipes: $e');
     }
   }
 
@@ -153,39 +185,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       );
     }
-
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: AppColors.primaryColor,
-          automaticallyImplyLeading: false,
-          centerTitle: true,
-          title: const AppText(
-            text: 'Profile',
-            textColor: Colors.white,
-            fontSize: 18,
-          ),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const Settings()),
-                  );
-                },
-                child: const Icon(
-                  Icons.more_horiz_outlined,
-                  color: Colors.white,
-                ),
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final containerWidth = screenWidth * 1; // 80% of screen width
+    final containerHeight = screenHeight * 0.2; // 20% of screen height
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: AppColors.primaryColor,
+        automaticallyImplyLeading: false,
+        centerTitle: true,
+        title: const AppText(
+          text: 'Profile',
+          textColor: Colors.white,
+          fontSize: 18,
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          const recipe_food_settings.Settings()),
+                );
+              },
+              child: const Icon(
+                Icons.more_horiz_outlined,
+                color: Colors.white,
               ),
             ),
-          ],
-        ),
-        body: Padding(
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: _user == null
               ? const Center(child: CircularProgressIndicator())
@@ -240,91 +276,96 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         fontWeight: FontWeight.w600,
                       ),
                       const SizedBox(height: 20),
-                      Obx(() => SizedBox(
-                            width: MediaQuery.of(context).size.width,
-                            height: 40,
-                            child: TabBar(
-                              dividerColor: Colors.transparent,
-                              indicator: BoxDecoration(
-                                borderRadius: BorderRadius.circular(50),
-                                color: Colors.transparent,
-                              ),
-                              labelPadding:
-                                  const EdgeInsets.symmetric(horizontal: 0),
-                              onTap: (index) {
-                                controller.changeTabIndex(index);
-                              },
-                              tabs: profileType.map<Widget>((type) {
-                                return Tab(
-                                  child: Material(
-                                    color: Colors.transparent,
-                                    child: InkWell(
-                                      splashColor: Colors.transparent,
-                                      highlightColor: Colors.transparent,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CustomButton(
+                            width: 200,
+                            label: 'Add New Recipe',
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const AddRecipeScreen()),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      _userRecipes.isEmpty
+                          ? const Center(child: Text('No recipes available'))
+                          : Container(
+                              height: screenHeight * 0.4,
+                              child: ListView.builder(
+                                itemCount: _userRecipes.length,
+                                itemBuilder: (context, index) {
+                                  final recipe = _userRecipes[index];
+                                  return Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: GestureDetector(
                                       onTap: () {
-                                        controller.changeTabIndex(
-                                            profileType.indexOf(type));
+                                        // Navigate to recipe detail page
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                ItemDetailScreen(
+                                                    recipe: recipe),
+                                          ),
+                                        );
                                       },
-                                      child: Container(
-                                        height: 35,
-                                        padding: const EdgeInsets.all(2),
-                                        width: isTabletScreen
-                                            ? MediaQuery.of(context).size.width
-                                            : 95,
-                                        decoration: BoxDecoration(
-                                          color: controller.selectedIndex ==
-                                                  profileType.indexOf(type)
-                                              ? AppColors.primaryColor
-                                              : Colors.white,
+                                      child: Card(
+                                        elevation: 4,
+                                        shape: RoundedRectangleBorder(
                                           borderRadius:
                                               BorderRadius.circular(10),
                                         ),
-                                        child: Align(
-                                          alignment: Alignment.center,
-                                          child: Text(
-                                            type,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .titleLarge!
-                                                .merge(
-                                                  TextStyle(
-                                                    color: controller
-                                                                .selectedIndex ==
-                                                            profileType
-                                                                .indexOf(type)
-                                                        ? Colors.white
-                                                        : AppColors
-                                                            .primaryColor,
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: isTabletScreen
-                                                        ? 20
-                                                        : 12,
-                                                  ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(20),
+                                          child: Row(
+                                            children: [
+                                              CachedNetworkImage(
+                                                imageUrl: recipe.image!,
+                                                width: 80,
+                                                height: 80,
+                                                fit: BoxFit.cover,
+                                                errorWidget:
+                                                    (context, url, error) =>
+                                                        const Icon(Icons.error),
+                                              ),
+                                              const SizedBox(width: 10),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      recipe.name!,
+                                                      style: const TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    ),
+                                                    const SizedBox(height: 5),
+                                                    Text(
+                                                      'Time: ${recipe.time}',
+                                                      style: const TextStyle(
+                                                          fontSize: 12),
+                                                    ),
+                                                  ],
                                                 ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                );
-                              }).toList(),
+                                  );
+                                },
+                              ),
                             ),
-                          )),
-                      const SizedBox(height: 10),
-                      Expanded(
-                        child: Obx(() {
-                          switch (controller.selectedIndex) {
-                            case 0:
-                              return const RecipeTab();
-                            case 1:
-                              return const RecipeTab();
-                            case 2:
-                              return const RecipeTab();
-                            default:
-                              return const SizedBox.shrink();
-                          }
-                        }),
-                      ),
                     ],
                   ),
                 ),
