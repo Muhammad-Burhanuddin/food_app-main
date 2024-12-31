@@ -27,7 +27,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
     try {
       // Use ImagePicker to select an image
       final pickedFile =
-          await ImagePicker().pickImage(source: ImageSource.gallery);
+          await ImagePicker().pickImage(source: ImageSource.camera);
       if (pickedFile != null) {
         setState(() {
           _imageFile = File(pickedFile.path);
@@ -53,7 +53,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
 
     // Fallback URL
     const fallbackUrl =
-        "https://images.immediate.co.uk/production/volatile/sites/30/2020/08/chorizo-mozarella-gnocchi-bake-cropped-9ab73a3.jpg?quality=90&resize=556,505";
+        "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png";
 
     if (_imageFile == null) {
       // Use fallback URL if no image file is selected
